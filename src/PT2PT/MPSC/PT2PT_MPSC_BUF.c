@@ -105,7 +105,7 @@ int channel_send_pt2pt_mpsc_buf(MPI_Channel *ch, void *data)
         }
 
         // Decrement count of buffered items for every received acknowledgement message
-        ch->buffered_items -= ch->received;
+        ch->buffered_items--;
     }   
 
     // Send data to receiver with buffered send
@@ -121,10 +121,9 @@ int channel_send_pt2pt_mpsc_buf(MPI_Channel *ch, void *data)
     return 1;
 }
 
+// TODO: Check if local variable make execution faster
 int channel_receive_pt2pt_mpsc_buf(MPI_Channel *ch, void *data)
 {
-    // TODO: Check if local variable make execution faster
-
     // Loop until one message can be received
     while (1) 
     {
@@ -202,7 +201,7 @@ int channel_peek_pt2pt_mpsc_buf(MPI_Channel *ch)
         }
 
         // Return number of items which can be sent
-        return (int) ch->capacity - ch->buffered_items;
+        return ch->capacity - ch->buffered_items;
     }
     // Else the receiver is calling
     else
@@ -218,8 +217,32 @@ int channel_peek_pt2pt_mpsc_buf(MPI_Channel *ch)
     }
 }
 
+// TODO: Usage hint: Only call channelfree when all messages have been received or sent!
 int channel_free_pt2pt_mpsc_buf(MPI_Channel *ch) 
 {
+    // Check if all messages have been sent and received
+    // Needs to be done to assure that no message is on transit when channel is freed
+    if (!ch->is_receiver)
+        while (ch->buffered_items > 0)
+        {
+            // Check for more incoming acknowledgement messages from receiver
+            if (MPI_Probe(MPI_ANY_SOURCE, 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Probe(): Probing for acknowledgment messages failed\n");
+                return -1;
+            }   
+
+            // Receive acknowledgement messages from receiver
+            if (MPI_Recv(NULL, 0, MPI_BYTE, MPI_ANY_SOURCE, 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Recv(): Acknowledgements could not be received\n")
+                return -1;
+            } 
+
+            // Decrement buffered items
+            ch->buffered_items--;        
+        }
+
     // Free allocated memory used for storing ranks
     free(ch->receiver_ranks);
     free(ch->sender_ranks);

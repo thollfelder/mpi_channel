@@ -570,7 +570,7 @@ int channel_peek(MPI_Channel *ch)
         if (ch->capacity <= 0)
         {
             // Synchronous Channels do not support channel_peek
-            return -1;
+            return 1;
         }
         else
         {
@@ -583,7 +583,7 @@ int channel_peek(MPI_Channel *ch)
         if (ch->capacity <= 0)
         {
             // Synchronous Channels do not support channel_peek
-            return -1;
+            return 1;
         }
         else
         {
@@ -596,7 +596,7 @@ int channel_peek(MPI_Channel *ch)
         if (ch->capacity <= 0)
         {
             // Synchronous Channels do not support channel_peek
-            return -1;
+            return 1;
         }
         else
         {
@@ -608,7 +608,8 @@ int channel_peek(MPI_Channel *ch)
 
         if (ch->capacity <= 0)
         {
-            return -1;
+            // Synchronous Channels do not support channel_peek
+            return 1;
         }
         else
         {
@@ -620,7 +621,8 @@ int channel_peek(MPI_Channel *ch)
 
         if (ch->capacity <= 0)
         {
-            return -1;
+            // Synchronous Channels do not support channel_peek
+            return 1;
         }
         else
         {
@@ -632,7 +634,8 @@ int channel_peek(MPI_Channel *ch)
 
         if (ch->capacity <= 0)
         {
-            return -1;
+            // Synchronous Channels do not support channel_peek
+            return 1;
         }
         else
         {

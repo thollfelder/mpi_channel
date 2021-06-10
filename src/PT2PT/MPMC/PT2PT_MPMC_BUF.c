@@ -120,8 +120,8 @@ int channel_send_pt2pt_mpmc_buf(MPI_Channel *ch, void *data)
                 return -1;
             }
 
-            // Increment buffered items for receiver r
-            ch->receiver_buffered_items[ch->idx_last_rank]++;
+            // Decrement buffered items for receiver r
+            ch->receiver_buffered_items[ch->idx_last_rank]--;
 
             // Iprobe for more acknowledgment messages
             if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) != MPI_SUCCESS)
@@ -141,8 +141,8 @@ int channel_send_pt2pt_mpmc_buf(MPI_Channel *ch, void *data)
                 return -1;
             }
 
-            // Decrement buffered items for receiver r
-            ch->receiver_buffered_items[ch->idx_last_rank]--;
+            // Increment buffered items for receiver r
+            ch->receiver_buffered_items[ch->idx_last_rank]++;
 
             // Increment idx of last_rank
             ch->idx_last_rank++;
@@ -271,8 +271,47 @@ int channel_peek_pt2pt_mpmc_buf(MPI_Channel *ch)
     }
 }
 
+// TODO: Usage hint: Only call channelfree when all messages have been received or sent!
 int channel_free_pt2pt_mpmc_buf(MPI_Channel *ch)
 {
+    /*
+    // Check if all messages have been sent and received
+    // Needs to be done to assure that no message is on transit when channel is freed
+    if (!ch->is_receiver)
+        // For every receiver r in receiver_ranks check if acknowledgment messages can be received
+        for (int i = 0; i < ch->receiver_count; i++)
+        {
+            // If current receiver index is equal to count of receiver reset to 0
+            if (ch->idx_last_rank >= ch->receiver_count)
+            {
+                ch->idx_last_rank = 0;
+            }
+
+            while (ch->receiver_buffered_items[ch->idx_last_rank] > 0)
+            {
+                // Check for more incoming acknowledgement messages from receiver
+                if (MPI_Probe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+                {
+                    ERROR("Error in MPI_Probe(): Probing for acknowledgment messages failed\n");
+                    return -1;
+                }   
+
+                // Receive acknowledgement messages from receiver
+                if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+                {
+                    ERROR("Error in MPI_Recv(): Acknowledgements could not be received\n")
+                    return -1;
+                } 
+
+                // Decrement count of buffered items for every received acknowledgement message
+                ch->receiver_buffered_items[ch->idx_last_rank]--;      
+            }
+
+            // Go to next rank
+            ch->idx_last_rank++;
+        }
+    */
+
     // Free memory used for storing buffered items for each receiver
     free(ch->receiver_buffered_items);
 

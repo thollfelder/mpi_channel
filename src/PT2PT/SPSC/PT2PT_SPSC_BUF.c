@@ -156,7 +156,7 @@ int channel_receive_pt2pt_spsc_buf(MPI_Channel *ch, void *data)
 int channel_peek_pt2pt_spsc_buf(MPI_Channel *ch)
 {
     // Check if sender is calling
-    if (ch->is_receiver)
+    if (!ch->is_receiver)
     {
         // Check for incoming acknowledgement messages from receiver
         if (MPI_Iprobe(MPI_ANY_SOURCE, 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) != MPI_SUCCESS)
@@ -204,6 +204,7 @@ int channel_peek_pt2pt_spsc_buf(MPI_Channel *ch)
     }
 }
 
+// TODO: Usage hint: Only call channelfree when all messages have been received or sent!
 int channel_free_pt2pt_spsc_buf(MPI_Channel *ch)
 {
     // Check if all messages have been sent and received

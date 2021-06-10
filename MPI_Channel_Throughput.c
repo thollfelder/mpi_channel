@@ -62,7 +62,7 @@ double throughput_print_peek(int len)
     if (!chan->is_receiver)
         for (int i = 0; i < len; i++)
         {
-            while(peek_return = channel_peek(chan) <= 0) 
+            while((peek_return = channel_peek(chan)) <= 0) 
             {
                 printf("Sender %d peeked %d\n", rank, peek_return);
             }
@@ -76,7 +76,7 @@ double throughput_print_peek(int len)
         len = ceil((double)len * ((double) producers / (double) consumers));
         for (int i = 0; i < len; i++)
         {
-            while(peek_return = channel_peek(chan) <= 0) 
+            while((peek_return = channel_peek(chan)) <= 0) 
             {
                 printf("Receiver %d peeked %d\n", rank, peek_return);
             }
