@@ -42,7 +42,7 @@ MAIN = Test
 .PHONY: depend clean
 
 all:    $(MAIN)
-	@echo  Test has been compiled
+	@echo  $(MAIN) has been compiled
 
 $(MAIN): $(OBJS) 
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
@@ -51,7 +51,7 @@ $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+	$(RM) *.o *~ $(MAIN)                             
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
