@@ -1,3 +1,4 @@
-Returns 1 if the passed data was successful written to the queue, otherwise 0.
+# MPI_Channel #
 
-Sends one item from the memory data is pointing to the passed channel.
+This is an implementation of channels builds on MPI. It offers implementations of different queues (SPSC, MPSC, MPMC) 
+with both communication mechanism MPI offers (two-sided communication/pt2pt and one-sided communication/rma).
