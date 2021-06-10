@@ -1,0 +1,4 @@
+Lokaler Ordner im AI2: /home_ai2/sthollfelder
+
+
+https://github.com/thollfelder/mpi_channel
