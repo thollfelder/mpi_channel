@@ -75,14 +75,6 @@ int channel_send_pt2pt_spsc_buf(MPI_Channel *ch, void *data)
     // Receive acknowledgement messages from receiver
     while (ch->flag)
     {
-        /*
-        // TODO: Build persistent communication handle
-        MPI_Request req;
-        MPI_Recv_init(NULL, 0, MPI_BYTE, MPI_ANY_SOURCE, 0, ch->comm, &req);
-        MPI_Start(&req);
-        MPI_Wait(&req, MPI_STATUS_IGNORE);
-        */
-       
         // Receive acknowledgement messages from receiver
         if (MPI_Recv(NULL, 0, MPI_BYTE, MPI_ANY_SOURCE, 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
         {
@@ -214,6 +206,29 @@ int channel_peek_pt2pt_spsc_buf(MPI_Channel *ch)
 
 int channel_free_pt2pt_spsc_buf(MPI_Channel *ch)
 {
+    // Check if all messages have been sent and received
+    // Needs to be done to assure that no message is on transit when channel is freed
+    if (!ch->is_receiver)
+        while (ch->buffered_items > 0)
+        {
+            // Check for more incoming acknowledgement messages from receiver
+            if (MPI_Probe(MPI_ANY_SOURCE, 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Probe(): Probing for acknowledgment messages failed\n");
+                return -1;
+            }   
+
+            // Receive acknowledgement messages from receiver
+            if (MPI_Recv(NULL, 0, MPI_BYTE, MPI_ANY_SOURCE, 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Recv(): Acknowledgements could not be received\n")
+                return -1;
+            } 
+
+            // Decrement buffered items
+            ch->buffered_items--;        
+        }
+
     // Mark shadow comm for deallocation
     // Should be nothrow
     MPI_Comm_free(&ch->comm);
