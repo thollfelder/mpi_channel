@@ -1,0 +1,624 @@
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 2 processes (1 producer and 1 consumer).
+Channel type is SPSC, channel communication is built on PT2PT and buffer capacity is 0.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/2 runs on CPU ToniPC
+Process 2/2 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000008600, Bandwith (GB/s):     0.000433173
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000010140, Bandwith (GB/s):     0.000367386
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000005040, Bandwith (GB/s):     0.001478290
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000005280, Bandwith (GB/s):     0.001411095
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000008120, Bandwith (GB/s):     0.001835118
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000008600, Bandwith (GB/s):     0.001732693
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000009640, Bandwith (GB/s):     0.003091527
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000009920, Bandwith (GB/s):     0.003004266
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000021400, Bandwith (GB/s):     0.002785264
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000021660, Bandwith (GB/s):     0.002751830
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000023120, Bandwith (GB/s):     0.005156111
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000023200, Bandwith (GB/s):     0.005138331
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000042520, Bandwith (GB/s):     0.005607210
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000042520, Bandwith (GB/s):     0.005607210
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000081440, Bandwith (GB/s):     0.005855073
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000081500, Bandwith (GB/s):     0.005850763
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000185120, Bandwith (GB/s):     0.005151655
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000185240, Bandwith (GB/s):     0.005148317
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.000322500, Bandwith (GB/s):     0.005914259
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.000322740, Bandwith (GB/s):     0.005909861
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.000699780, Bandwith (GB/s):     0.005451281
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.000699900, Bandwith (GB/s):     0.005450346
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.001452600, Bandwith (GB/s):     0.005252234
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.001452840, Bandwith (GB/s):     0.005251366
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.002934400, Bandwith (GB/s):     0.005199969
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.002934440, Bandwith (GB/s):     0.005199898
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.005483440, Bandwith (GB/s):     0.005565408
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.005483540, Bandwith (GB/s):     0.005565306
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 2 processes (1 producer and 1 consumer).
+Channel type is SPSC, channel communication is built on PT2PT and buffer capacity is 1.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/2 runs on CPU ToniPC
+Process 2/2 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000010440, Bandwith (GB/s):     0.000356829
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000004080, Bandwith (GB/s):     0.000913061
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000010120, Bandwith (GB/s):     0.000736223
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000009520, Bandwith (GB/s):     0.000782624
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000006840, Bandwith (GB/s):     0.002178532
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000006500, Bandwith (GB/s):     0.002292486
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000010140, Bandwith (GB/s):     0.002939085
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000009920, Bandwith (GB/s):     0.003004266
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000017220, Bandwith (GB/s):     0.003461361
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000016960, Bandwith (GB/s):     0.003514425
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000031000, Bandwith (GB/s):     0.003845461
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000030640, Bandwith (GB/s):     0.003890643
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000074120, Bandwith (GB/s):     0.003216656
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000073920, Bandwith (GB/s):     0.003225360
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000107260, Bandwith (GB/s):     0.004445620
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000106900, Bandwith (GB/s):     0.004460591
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000210620, Bandwith (GB/s):     0.004527938
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000210340, Bandwith (GB/s):     0.004533966
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.000371260, Bandwith (GB/s):     0.005137501
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.000371140, Bandwith (GB/s):     0.005139162
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.000718500, Bandwith (GB/s):     0.005309252
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.000718340, Bandwith (GB/s):     0.005310434
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.001722680, Bandwith (GB/s):     0.004428794
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.001722580, Bandwith (GB/s):     0.004429051
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.002581780, Bandwith (GB/s):     0.005910182
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.002581080, Bandwith (GB/s):     0.005911785
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.006377000, Bandwith (GB/s):     0.004785570
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.006377320, Bandwith (GB/s):     0.004785330
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 3 processes (2 producer and 1 consumer).
+Channel type is MPSC, channel communication is built on PT2PT and buffer capacity is 0.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/3 runs on CPU ToniPC
+Process 2/3 runs on CPU ToniPC
+Process 3/3 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000016900, Bandwith (GB/s):     0.000220431
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000016160, Bandwith (GB/s):     0.000230525
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000016800, Bandwith (GB/s):     0.000221743
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000006640, Bandwith (GB/s):     0.001122075
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000007100, Bandwith (GB/s):     0.001049378
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000006600, Bandwith (GB/s):     0.001128876
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000011660, Bandwith (GB/s):     0.001277973
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000011560, Bandwith (GB/s):     0.001289028
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000012160, Bandwith (GB/s):     0.001225424
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000029300, Bandwith (GB/s):     0.001017144
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000024520, Bandwith (GB/s):     0.001215429
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000024380, Bandwith (GB/s):     0.001222409
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000027740, Bandwith (GB/s):     0.002148689
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000028560, Bandwith (GB/s):     0.002086997
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000028080, Bandwith (GB/s):     0.002122673
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000071780, Bandwith (GB/s):     0.001660759
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000059800, Bandwith (GB/s):     0.001993466
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000058300, Bandwith (GB/s):     0.002044756
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000177140, Bandwith (GB/s):     0.001345933
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000153880, Bandwith (GB/s):     0.001549380
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000157540, Bandwith (GB/s):     0.001513384
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000220600, Bandwith (GB/s):     0.002161547
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000207200, Bandwith (GB/s):     0.002301338
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000216740, Bandwith (GB/s):     0.002200042
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000329420, Bandwith (GB/s):     0.002895010
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000317760, Bandwith (GB/s):     0.003001241
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000328740, Bandwith (GB/s):     0.002900999
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.001066440, Bandwith (GB/s):     0.001788519
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.001052120, Bandwith (GB/s):     0.001812862
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.001011180, Bandwith (GB/s):     0.001886260
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.001758580, Bandwith (GB/s):     0.002169192
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.001755800, Bandwith (GB/s):     0.002172626
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.001700060, Bandwith (GB/s):     0.002243860
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.003000780, Bandwith (GB/s):     0.002542470
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.002855980, Bandwith (GB/s):     0.002671375
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.002933660, Bandwith (GB/s):     0.002600640
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.005968260, Bandwith (GB/s):     0.002556656
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.005965400, Bandwith (GB/s):     0.002557882
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.005598940, Bandwith (GB/s):     0.002725300
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.011470520, Bandwith (GB/s):     0.002660523
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.011422620, Bandwith (GB/s):     0.002671679
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.011459240, Bandwith (GB/s):     0.002663142
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 3 processes (2 producer and 1 consumer).
+Channel type is MPSC, channel communication is built on PT2PT and buffer capacity is 1.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/3 runs on CPU ToniPC
+Process 2/3 runs on CPU ToniPC
+Process 3/3 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000009700, Bandwith (GB/s):     0.000384051
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000006060, Bandwith (GB/s):     0.000614734
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000005420, Bandwith (GB/s):     0.000687323
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000011800, Bandwith (GB/s):     0.000631405
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000009620, Bandwith (GB/s):     0.000774489
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000012560, Bandwith (GB/s):     0.000593199
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000017260, Bandwith (GB/s):     0.000863335
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000010440, Bandwith (GB/s):     0.001427314
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000011680, Bandwith (GB/s):     0.001275784
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000018240, Bandwith (GB/s):     0.001633899
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000016840, Bandwith (GB/s):     0.001769734
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000016200, Bandwith (GB/s):     0.001839650
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000035940, Bandwith (GB/s):     0.001658449
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000034400, Bandwith (GB/s):     0.001732693
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000028680, Bandwith (GB/s):     0.002078265
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000062940, Bandwith (GB/s):     0.001894015
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000058600, Bandwith (GB/s):     0.002034288
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000046080, Bandwith (GB/s):     0.002587007
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000146080, Bandwith (GB/s):     0.001632110
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000146200, Bandwith (GB/s):     0.001630770
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000096180, Bandwith (GB/s):     0.002478879
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000163180, Bandwith (GB/s):     0.002922154
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000162680, Bandwith (GB/s):     0.002931136
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000138520, Bandwith (GB/s):     0.003442370
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000457160, Bandwith (GB/s):     0.002086084
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000456820, Bandwith (GB/s):     0.002087637
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000378720, Bandwith (GB/s):     0.002518151
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.000802320, Bandwith (GB/s):     0.002377292
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.000730420, Bandwith (GB/s):     0.002611304
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.000776580, Bandwith (GB/s):     0.002456088
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.001506960, Bandwith (GB/s):     0.002531386
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.001447380, Bandwith (GB/s):     0.002635588
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.001498980, Bandwith (GB/s):     0.002544862
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.002584300, Bandwith (GB/s):     0.002952209
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.002579120, Bandwith (GB/s):     0.002958139
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.002571160, Bandwith (GB/s):     0.002967297
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.004885060, Bandwith (GB/s):     0.003123562
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.004788160, Bandwith (GB/s):     0.003186775
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.004867860, Bandwith (GB/s):     0.003134599
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.010619380, Bandwith (GB/s):     0.002873763
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.010568180, Bandwith (GB/s):     0.002887685
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.010525000, Bandwith (GB/s):     0.002899532
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 4 processes (2 producer and 2 consumer).
+Channel type is MPMC, channel communication is built on PT2PT and buffer capacity is 0.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/4 runs on CPU ToniPC
+Process 2/4 runs on CPU ToniPC
+Process 3/4 runs on CPU ToniPC
+Process 4/4 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000017340, Bandwith (GB/s):     0.000214838
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000025440, Bandwith (GB/s):     0.000146434
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000026500, Bandwith (GB/s):     0.000140577
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000046380, Bandwith (GB/s):     0.000080321
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000012100, Bandwith (GB/s):     0.000615750
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000010340, Bandwith (GB/s):     0.000720559
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000011140, Bandwith (GB/s):     0.000668813
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000013760, Bandwith (GB/s):     0.000541467
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000016740, Bandwith (GB/s):     0.000890153
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000012340, Bandwith (GB/s):     0.001207550
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000016580, Bandwith (GB/s):     0.000898743
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000016520, Bandwith (GB/s):     0.000902007
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000031000, Bandwith (GB/s):     0.000961365
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000030340, Bandwith (GB/s):     0.000982278
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000034160, Bandwith (GB/s):     0.000872433
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000031420, Bandwith (GB/s):     0.000948514
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000047140, Bandwith (GB/s):     0.001264418
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000055340, Bandwith (GB/s):     0.001077063
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000075020, Bandwith (GB/s):     0.000794517
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000075140, Bandwith (GB/s):     0.000793248
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000366360, Bandwith (GB/s):     0.000325388
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000374040, Bandwith (GB/s):     0.000318707
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000426080, Bandwith (GB/s):     0.000279781
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000152920, Bandwith (GB/s):     0.000779553
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000238260, Bandwith (GB/s):     0.001000666
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000199320, Bandwith (GB/s):     0.001196160
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000218340, Bandwith (GB/s):     0.001091960
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000257180, Bandwith (GB/s):     0.000927049
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000348120, Bandwith (GB/s):     0.001369749
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000341240, Bandwith (GB/s):     0.001397366
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000418760, Bandwith (GB/s):     0.001138688
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000423060, Bandwith (GB/s):     0.001127115
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000710180, Bandwith (GB/s):     0.001342863
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000878860, Bandwith (GB/s):     0.001085127
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000890620, Bandwith (GB/s):     0.001070798
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000763580, Bandwith (GB/s):     0.001248951
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.001563160, Bandwith (GB/s):     0.001220188
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.001522720, Bandwith (GB/s):     0.001252593
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.001756200, Bandwith (GB/s):     0.001086066
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.001740400, Bandwith (GB/s):     0.001095925
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.002434520, Bandwith (GB/s):     0.001566920
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.002997220, Bandwith (GB/s):     0.001272745
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.002980260, Bandwith (GB/s):     0.001279988
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.002940120, Bandwith (GB/s):     0.001297463
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.006096660, Bandwith (GB/s):     0.001251406
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.004971400, Bandwith (GB/s):     0.001534657
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.005351440, Bandwith (GB/s):     0.001425671
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.005894560, Bandwith (GB/s):     0.001294311
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.012145860, Bandwith (GB/s):     0.001256295
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.009265320, Bandwith (GB/s):     0.001646871
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.012098860, Bandwith (GB/s):     0.001261176
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.011986180, Bandwith (GB/s):     0.001273032
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.021028680, Bandwith (GB/s):     0.001451236
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.023950940, Bandwith (GB/s):     0.001274170
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.023334980, Bandwith (GB/s):     0.001307804
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.023719560, Bandwith (GB/s):     0.001286600
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 4 processes (2 producer and 2 consumer).
+Channel type is MPMC, channel communication is built on PT2PT and buffer capacity is 1.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 2/4 runs on CPU ToniPC
+Process 3/4 runs on CPU ToniPC
+Process 1/4 runs on CPU ToniPC
+Process 4/4 runs on CPU ToniPC
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000018240, Bandwith (GB/s):     0.000204237
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000011960, Bandwith (GB/s):     0.000311479
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000022760, Bandwith (GB/s):     0.000163677
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000016580, Bandwith (GB/s):     0.000224686
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000004400, Bandwith (GB/s):     0.001693314
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000005660, Bandwith (GB/s):     0.002632714
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000004220, Bandwith (GB/s):     0.001765540
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000004060, Bandwith (GB/s):     0.003670237
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000012860, Bandwith (GB/s):     0.000579361
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000006800, Bandwith (GB/s):     0.002191347
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000006320, Bandwith (GB/s):     0.001178889
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000009380, Bandwith (GB/s):     0.001588610
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000038180, Bandwith (GB/s):     0.000780574
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000023240, Bandwith (GB/s):     0.001282372
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000010460, Bandwith (GB/s):     0.002849170
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000012080, Bandwith (GB/s):     0.002467080
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000028880, Bandwith (GB/s):     0.002063873
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000024820, Bandwith (GB/s):     0.004802953
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000047420, Bandwith (GB/s):     0.005027806
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000032220, Bandwith (GB/s):     0.001849927
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000027260, Bandwith (GB/s):     0.004373048
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000052940, Bandwith (GB/s):     0.004503562
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000016300, Bandwith (GB/s):     0.003656727
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000026140, Bandwith (GB/s):     0.004560417
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000052100, Bandwith (GB/s):     0.004576172
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000031920, Bandwith (GB/s):     0.001867313
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000027000, Bandwith (GB/s):     0.004415159
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000052400, Bandwith (GB/s):     0.004549973
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000102320, Bandwith (GB/s):     0.004660254
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000204760, Bandwith (GB/s):     0.002328761
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.000146940, Bandwith (GB/s):     0.003245115
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.000157740, Bandwith (GB/s):     0.003022931
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000331740, Bandwith (GB/s):     0.002874764
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000283120, Bandwith (GB/s):     0.003368446
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.000189320, Bandwith (GB/s):     0.005037367
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.000283200, Bandwith (GB/s):     0.003367494
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.000518900, Bandwith (GB/s):     0.003675754
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.000404320, Bandwith (GB/s):     0.004717423
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.000518820, Bandwith (GB/s):     0.003676321
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.000505520, Bandwith (GB/s):     0.003773043
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.001003800, Bandwith (GB/s):     0.003800256
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.001197940, Bandwith (GB/s):     0.003184381
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.000987900, Bandwith (GB/s):     0.003861420
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.000890580, Bandwith (GB/s):     0.004283385
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.001929200, Bandwith (GB/s):     0.003954693
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.001838860, Bandwith (GB/s):     0.004148981
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.001683600, Bandwith (GB/s):     0.004531596
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.001506640, Bandwith (GB/s):     0.005063847
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.003422120, Bandwith (GB/s):     0.004458870
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.003436680, Bandwith (GB/s):     0.004439980
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.003422040, Bandwith (GB/s):     0.004458974
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.002821240, Bandwith (GB/s):     0.005408540
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.005942400, Bandwith (GB/s):     0.005135564
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.005941100, Bandwith (GB/s):     0.005136688
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.005470720, Bandwith (GB/s):     0.005578348
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.005940500, Bandwith (GB/s):     0.005137207
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 2 processes (1 producer and 1 consumer).
+Channel type is SPSC, channel communication is built on RMA and buffer capacity is 0.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/2 runs on CPU ToniPC
+Process 2/2 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000051920, Bandwith (GB/s):     0.000071751
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000052400, Bandwith (GB/s):     0.000071093
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000061900, Bandwith (GB/s):     0.000120365
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000062060, Bandwith (GB/s):     0.000120054
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000086940, Bandwith (GB/s):     0.000171396
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000086980, Bandwith (GB/s):     0.000171317
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000159720, Bandwith (GB/s):     0.000186591
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000159580, Bandwith (GB/s):     0.000186755
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000247120, Bandwith (GB/s):     0.000241197
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000247120, Bandwith (GB/s):     0.000241197
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.000417220, Bandwith (GB/s):     0.000285723
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.000417780, Bandwith (GB/s):     0.000285340
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.000875780, Bandwith (GB/s):     0.000272236
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.000876060, Bandwith (GB/s):     0.000272149
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.001669620, Bandwith (GB/s):     0.000285596
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.001671000, Bandwith (GB/s):     0.000285360
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.002972480, Bandwith (GB/s):     0.000320835
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.002971940, Bandwith (GB/s):     0.000320893
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.006598620, Bandwith (GB/s):     0.000289053
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.006598000, Bandwith (GB/s):     0.000289080
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.012830580, Bandwith (GB/s):     0.000297313
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.012829720, Bandwith (GB/s):     0.000297333
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.033166080, Bandwith (GB/s):     0.000230036
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.033165580, Bandwith (GB/s):     0.000230040
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.055083100, Bandwith (GB/s):     0.000277014
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.055082240, Bandwith (GB/s):     0.000277018
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.103595600, Bandwith (GB/s):     0.000294584
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.103594740, Bandwith (GB/s):     0.000294586
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 2 processes (1 producer and 1 consumer).
+Channel type is SPSC, channel communication is built on RMA and buffer capacity is 1.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 2/2 runs on CPU ToniPC
+Process 1/2 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000119840, Bandwith (GB/s):     0.000031086
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000090140, Bandwith (GB/s):     0.000041328
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000163940, Bandwith (GB/s):     0.000045447
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000142720, Bandwith (GB/s):     0.000052204
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000221140, Bandwith (GB/s):     0.000067383
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000209160, Bandwith (GB/s):     0.000071243
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.000327120, Bandwith (GB/s):     0.000091105
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.000313140, Bandwith (GB/s):     0.000095173
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.000590000, Bandwith (GB/s):     0.000101025
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.000579780, Bandwith (GB/s):     0.000102806
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.001214500, Bandwith (GB/s):     0.000098155
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.001203220, Bandwith (GB/s):     0.000099075
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.002004700, Bandwith (GB/s):     0.000118930
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.001993380, Bandwith (GB/s):     0.000119605
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.004613780, Bandwith (GB/s):     0.000103351
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.004598000, Bandwith (GB/s):     0.000103705
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.008372120, Bandwith (GB/s):     0.000113911
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.008359040, Bandwith (GB/s):     0.000114089
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.016002960, Bandwith (GB/s):     0.000119187
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.015992240, Bandwith (GB/s):     0.000119267
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.031397480, Bandwith (GB/s):     0.000121497
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.031385820, Bandwith (GB/s):     0.000121542
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.061752280, Bandwith (GB/s):     0.000123548
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.061741200, Bandwith (GB/s):     0.000123571
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.147635540, Bandwith (GB/s):     0.000103354
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.147620980, Bandwith (GB/s):     0.000103365
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     0.273977100, Bandwith (GB/s):     0.000111387
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     0.273967080, Bandwith (GB/s):     0.000111391
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 3 processes (2 producer and 1 consumer).
+Channel type is MPSC, channel communication is built on RMA and buffer capacity is 0.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 2/3 runs on CPU ToniPC
+Process 1/3 runs on CPU ToniPC
+Process 3/3 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000247920, Bandwith (GB/s):     0.000015026
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000229360, Bandwith (GB/s):     0.000016242
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000261160, Bandwith (GB/s):     0.000014264
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000326980, Bandwith (GB/s):     0.000022786
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000347560, Bandwith (GB/s):     0.000021437
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000296000, Bandwith (GB/s):     0.000025171
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000588500, Bandwith (GB/s):     0.000025321
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000575260, Bandwith (GB/s):     0.000025903
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000587960, Bandwith (GB/s):     0.000025344
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.002661440, Bandwith (GB/s):     0.000011198
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.002613960, Bandwith (GB/s):     0.000011401
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.002661180, Bandwith (GB/s):     0.000011199
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.002136240, Bandwith (GB/s):     0.000027902
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.002160460, Bandwith (GB/s):     0.000027589
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.002099780, Bandwith (GB/s):     0.000028386
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.004137700, Bandwith (GB/s):     0.000028811
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.004114980, Bandwith (GB/s):     0.000028970
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.004148540, Bandwith (GB/s):     0.000028735
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.008480340, Bandwith (GB/s):     0.000028114
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.008493500, Bandwith (GB/s):     0.000028071
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.008459020, Bandwith (GB/s):     0.000028185
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.016010420, Bandwith (GB/s):     0.000029783
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.016000540, Bandwith (GB/s):     0.000029801
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.016009240, Bandwith (GB/s):     0.000029785
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.032320200, Bandwith (GB/s):     0.000029507
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.032332940, Bandwith (GB/s):     0.000029495
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.032298260, Bandwith (GB/s):     0.000029527
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.070177220, Bandwith (GB/s):     0.000027179
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.070102660, Bandwith (GB/s):     0.000027208
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.070186800, Bandwith (GB/s):     0.000027175
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.163847640, Bandwith (GB/s):     0.000023282
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.163753820, Bandwith (GB/s):     0.000023295
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.163849080, Bandwith (GB/s):     0.000023282
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.303290280, Bandwith (GB/s):     0.000025155
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.302996380, Bandwith (GB/s):     0.000025180
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.303299940, Bandwith (GB/s):     0.000025155
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.610838540, Bandwith (GB/s):     0.000024980
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.610849460, Bandwith (GB/s):     0.000024980
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.610699320, Bandwith (GB/s):     0.000024986
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     1.084695840, Bandwith (GB/s):     0.000028135
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     1.084694020, Bandwith (GB/s):     0.000028135
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     1.084615900, Bandwith (GB/s):     0.000028137
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 3 processes (2 producer and 1 consumer).
+Channel type is MPSC, channel communication is built on RMA and buffer capacity is 1.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/3 runs on CPU ToniPC
+Process 2/3 runs on CPU ToniPC
+Process 3/3 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000287780, Bandwith (GB/s):     0.000012945
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000169140, Bandwith (GB/s):     0.000022025
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000164200, Bandwith (GB/s):     0.000022688
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000329400, Bandwith (GB/s):     0.000022619
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000269040, Bandwith (GB/s):     0.000027693
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000200540, Bandwith (GB/s):     0.000037153
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000633080, Bandwith (GB/s):     0.000023538
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000558380, Bandwith (GB/s):     0.000026686
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000512000, Bandwith (GB/s):     0.000029104
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.001257000, Bandwith (GB/s):     0.000023709
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.001140340, Bandwith (GB/s):     0.000026135
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.001155060, Bandwith (GB/s):     0.000025802
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.002248700, Bandwith (GB/s):     0.000026506
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.002155820, Bandwith (GB/s):     0.000027648
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.002147720, Bandwith (GB/s):     0.000027753
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.004569820, Bandwith (GB/s):     0.000026086
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.004510920, Bandwith (GB/s):     0.000026427
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.004368580, Bandwith (GB/s):     0.000027288
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.009219700, Bandwith (GB/s):     0.000025860
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.009108940, Bandwith (GB/s):     0.000026174
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.009068900, Bandwith (GB/s):     0.000026290
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.018248440, Bandwith (GB/s):     0.000026130
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.018148960, Bandwith (GB/s):     0.000026274
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.017934500, Bandwith (GB/s):     0.000026588
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.041555020, Bandwith (GB/s):     0.000022950
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.041504980, Bandwith (GB/s):     0.000022977
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.041212820, Bandwith (GB/s):     0.000023140
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.073267500, Bandwith (GB/s):     0.000026033
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.073124420, Bandwith (GB/s):     0.000026084
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.072850100, Bandwith (GB/s):     0.000026182
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.155103260, Bandwith (GB/s):     0.000024595
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.154717140, Bandwith (GB/s):     0.000024656
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.154783060, Bandwith (GB/s):     0.000024645
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.316672840, Bandwith (GB/s):     0.000024092
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.315866800, Bandwith (GB/s):     0.000024154
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.316322780, Bandwith (GB/s):     0.000024119
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.697199280, Bandwith (GB/s):     0.000021886
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.696217020, Bandwith (GB/s):     0.000021917
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.696377480, Bandwith (GB/s):     0.000021912
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     1.544794500, Bandwith (GB/s):     0.000019755
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     1.543283120, Bandwith (GB/s):     0.000019774
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     1.543801340, Bandwith (GB/s):     0.000019768
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 4 processes (2 producer and 2 consumer).
+Channel type is MPMC, channel communication is built on RMA and buffer capacity is 0.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/4 runs on CPU ToniPC
+Process 2/4 runs on CPU ToniPC
+Process 3/4 runs on CPU ToniPC
+Process 4/4 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000459000, Bandwith (GB/s):     0.000008116
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000458500, Bandwith (GB/s):     0.000008125
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000576900, Bandwith (GB/s):     0.000006457
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000555360, Bandwith (GB/s):     0.000006708
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000785120, Bandwith (GB/s):     0.000009490
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000862900, Bandwith (GB/s):     0.000008634
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000890220, Bandwith (GB/s):     0.000008369
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000785840, Bandwith (GB/s):     0.000009481
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.001470400, Bandwith (GB/s):     0.000010134
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.001464920, Bandwith (GB/s):     0.000010172
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.001527740, Bandwith (GB/s):     0.000009754
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.001381400, Bandwith (GB/s):     0.000010787
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.003030480, Bandwith (GB/s):     0.000009834
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.003057720, Bandwith (GB/s):     0.000009747
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.003077980, Bandwith (GB/s):     0.000009682
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.003033080, Bandwith (GB/s):     0.000009826
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.006285380, Bandwith (GB/s):     0.000009483
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.006206980, Bandwith (GB/s):     0.000009603
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.006290880, Bandwith (GB/s):     0.000009475
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.006221240, Bandwith (GB/s):     0.000009581
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.015178040, Bandwith (GB/s):     0.000007854
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.015540940, Bandwith (GB/s):     0.000007671
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.015495020, Bandwith (GB/s):     0.000007693
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.015101060, Bandwith (GB/s):     0.000007894
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.027193440, Bandwith (GB/s):     0.000008768
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.027393040, Bandwith (GB/s):     0.000008704
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.027379280, Bandwith (GB/s):     0.000008708
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.027384780, Bandwith (GB/s):     0.000008706
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.040245400, Bandwith (GB/s):     0.000011848
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.040157740, Bandwith (GB/s):     0.000011874
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.040286760, Bandwith (GB/s):     0.000011836
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.040253420, Bandwith (GB/s):     0.000011846
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.101305920, Bandwith (GB/s):     0.000009414
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.101173420, Bandwith (GB/s):     0.000009426
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.101365820, Bandwith (GB/s):     0.000009408
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.101286360, Bandwith (GB/s):     0.000009416
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.154455720, Bandwith (GB/s):     0.000012349
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.154551900, Bandwith (GB/s):     0.000012341
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.154488400, Bandwith (GB/s):     0.000012346
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.154600720, Bandwith (GB/s):     0.000012337
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.347048520, Bandwith (GB/s):     0.000010992
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.346958480, Bandwith (GB/s):     0.000010995
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.347096400, Bandwith (GB/s):     0.000010990
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.347064680, Bandwith (GB/s):     0.000010991
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     1.002633600, Bandwith (GB/s):     0.000007609
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     1.003417420, Bandwith (GB/s):     0.000007603
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     1.001493100, Bandwith (GB/s):     0.000007618
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     1.004652960, Bandwith (GB/s):     0.000007594
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     1.422901160, Bandwith (GB/s):     0.000010724
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     1.422664280, Bandwith (GB/s):     0.000010726
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     1.422243460, Bandwith (GB/s):     0.000010729
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     1.421976780, Bandwith (GB/s):     0.000010731
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     2.513889980, Bandwith (GB/s):     0.000012140
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     2.514833840, Bandwith (GB/s):     0.000012135
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     2.514063240, Bandwith (GB/s):     0.000012139
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     2.515159960, Bandwith (GB/s):     0.000012133
+Version 3, subversion 1
+Library <Open MPI v4.0.3, package: Debian OpenMPI, ident: 4.0.3, repo rev: v4.0.3, Mar 03, 2020>
+
+Running throughput test with 4 processes (2 producer and 2 consumer).
+Channel type is MPMC, channel communication is built on RMA and buffer capacity is 1.
+The test is run 5 time(s) from 1 to 10000.
+
+Process 1/4 runs on CPU ToniPC
+Process 2/4 runs on CPU ToniPC
+Process 3/4 runs on CPU ToniPC
+Process 4/4 runs on CPU ToniPC
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000356360, Bandwith (GB/s):     0.000010454
+Process: Consumer, Transfer size (B):          4, Transfer Time (s):     0.000430160, Bandwith (GB/s):     0.000008660
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000217840, Bandwith (GB/s):     0.000017101
+Process: Producer, Transfer size (B):          4, Transfer Time (s):     0.000246860, Bandwith (GB/s):     0.000015091
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000508960, Bandwith (GB/s):     0.000014639
+Process: Consumer, Transfer size (B):          8, Transfer Time (s):     0.000443260, Bandwith (GB/s):     0.000016809
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000322020, Bandwith (GB/s):     0.000023137
+Process: Producer, Transfer size (B):          8, Transfer Time (s):     0.000300900, Bandwith (GB/s):     0.000024761
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000895940, Bandwith (GB/s):     0.000016632
+Process: Consumer, Transfer size (B):         16, Transfer Time (s):     0.000986720, Bandwith (GB/s):     0.000015102
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000702640, Bandwith (GB/s):     0.000021207
+Process: Producer, Transfer size (B):         16, Transfer Time (s):     0.000678360, Bandwith (GB/s):     0.000021966
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.001916020, Bandwith (GB/s):     0.000015554
+Process: Consumer, Transfer size (B):         32, Transfer Time (s):     0.001948500, Bandwith (GB/s):     0.000015295
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.001663440, Bandwith (GB/s):     0.000017916
+Process: Producer, Transfer size (B):         32, Transfer Time (s):     0.001672760, Bandwith (GB/s):     0.000017816
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.003626160, Bandwith (GB/s):     0.000016437
+Process: Consumer, Transfer size (B):         64, Transfer Time (s):     0.003597900, Bandwith (GB/s):     0.000016567
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.003454080, Bandwith (GB/s):     0.000017256
+Process: Producer, Transfer size (B):         64, Transfer Time (s):     0.003446080, Bandwith (GB/s):     0.000017296
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.007068220, Bandwith (GB/s):     0.000016866
+Process: Consumer, Transfer size (B):        128, Transfer Time (s):     0.007057640, Bandwith (GB/s):     0.000016891
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.006960280, Bandwith (GB/s):     0.000017127
+Process: Producer, Transfer size (B):        128, Transfer Time (s):     0.006806340, Bandwith (GB/s):     0.000017514
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.012889780, Bandwith (GB/s):     0.000018497
+Process: Consumer, Transfer size (B):        256, Transfer Time (s):     0.012877900, Bandwith (GB/s):     0.000018514
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.012745520, Bandwith (GB/s):     0.000018706
+Process: Producer, Transfer size (B):        256, Transfer Time (s):     0.012725320, Bandwith (GB/s):     0.000018736
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.026018100, Bandwith (GB/s):     0.000018327
+Process: Consumer, Transfer size (B):        512, Transfer Time (s):     0.026103420, Bandwith (GB/s):     0.000018267
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.025765820, Bandwith (GB/s):     0.000018507
+Process: Producer, Transfer size (B):        512, Transfer Time (s):     0.025929480, Bandwith (GB/s):     0.000018390
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.051003800, Bandwith (GB/s):     0.000018698
+Process: Consumer, Transfer size (B):       1024, Transfer Time (s):     0.050943300, Bandwith (GB/s):     0.000018720
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.050870700, Bandwith (GB/s):     0.000018747
+Process: Producer, Transfer size (B):       1024, Transfer Time (s):     0.050538940, Bandwith (GB/s):     0.000018870
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.102398560, Bandwith (GB/s):     0.000018627
+Process: Consumer, Transfer size (B):       2048, Transfer Time (s):     0.102417520, Bandwith (GB/s):     0.000018623
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.102052960, Bandwith (GB/s):     0.000018690
+Process: Producer, Transfer size (B):       2048, Transfer Time (s):     0.102281200, Bandwith (GB/s):     0.000018648
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.209108600, Bandwith (GB/s):     0.000018243
+Process: Consumer, Transfer size (B):       4096, Transfer Time (s):     0.209188660, Bandwith (GB/s):     0.000018236
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.208951740, Bandwith (GB/s):     0.000018256
+Process: Producer, Transfer size (B):       4096, Transfer Time (s):     0.209044420, Bandwith (GB/s):     0.000018248
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.409436320, Bandwith (GB/s):     0.000018634
+Process: Consumer, Transfer size (B):       8192, Transfer Time (s):     0.409466320, Bandwith (GB/s):     0.000018633
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.408976560, Bandwith (GB/s):     0.000018655
+Process: Producer, Transfer size (B):       8192, Transfer Time (s):     0.409208900, Bandwith (GB/s):     0.000018644
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.821109860, Bandwith (GB/s):     0.000018583
+Process: Consumer, Transfer size (B):      16384, Transfer Time (s):     0.821308560, Bandwith (GB/s):     0.000018579
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.820905360, Bandwith (GB/s):     0.000018588
+Process: Producer, Transfer size (B):      16384, Transfer Time (s):     0.821084240, Bandwith (GB/s):     0.000018584
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     1.638320560, Bandwith (GB/s):     0.000018627
+Process: Consumer, Transfer size (B):      32768, Transfer Time (s):     1.638206380, Bandwith (GB/s):     0.000018629
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     1.638149300, Bandwith (GB/s):     0.000018629
+Process: Producer, Transfer size (B):      32768, Transfer Time (s):     1.636997460, Bandwith (GB/s):     0.000018642

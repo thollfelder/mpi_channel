@@ -1,0 +1,121 @@
+Tests mit LOOP = 1.000, 10.000, 100.000 und BUF = 5
+
+##############################
+# NONBLOCKING QUEUE
+##############################
+
+1.000
+-np 4
+SENDER 1 finished sending 1000 data in 0.181383
+SENDER 2 finished sending 1000 data in 0.180957
+SENDER 3 finished sending 1000 data in 0.181244
+RECEIVER 0 finished in 0.181973
+
+-np 3
+SENDER 1 finished sending 1000 data in 0.114692
+SENDER 2 finished sending 1000 data in 0.114081
+RECEIVER 0 finished in 0.114985
+
+10.000
+-np 4
+SENDER 1 finished sending 10000 data in 1.791985
+SENDER 2 finished sending 10000 data in 1.792084
+SENDER 3 finished sending 10000 data in 1.791875
+RECEIVER 0 finished in 1.792747
+
+-np 3
+SENDER 1 finished sending 10000 data in 1.151561
+SENDER 2 finished sending 10000 data in 1.152001
+RECEIVER 0 finished in 1.152321
+
+100.000
+-np 4
+SENDER 1 finished sending 100000 data in 17.848321
+SENDER 2 finished sending 100000 data in 17.844281
+SENDER 3 finished sending 100000 data in 17.847267
+RECEIVER 0 finished in 17.848496
+
+-np 3
+SENDER 2 finished sending 100000 data in 11.495254
+SENDER 1 finished sending 100000 data in 11.497225
+RECEIVER 0 finished in 11.497434
+
+##############################
+# LOCKEXCLUSIV
+##############################
+
+1.000
+-np 4
+SENDER 1 finished sending 1000 data in 0.176817
+SENDER 2 finished sending 1000 data in 0.179357
+SENDER 3 finished sending 1000 data in 0.171805
+RECEIVER 0 finished in 0.179360
+
+-np 3
+SENDER 1 finished sending 1000 data in 0.090041
+SENDER 2 finished sending 1000 data in 0.088876
+RECEIVER 0 finished in 0.090043
+
+10.000
+-np 4
+SENDER 1 finished sending 10000 data in 1.702307
+SENDER 2 finished sending 10000 data in 1.744764
+SENDER 3 finished sending 10000 data in 1.718124
+RECEIVER 0 finished in 1.744765
+
+-np 3
+SENDER 1 finished sending 10000 data in 0.902886
+SENDER 2 finished sending 10000 data in 0.896065
+RECEIVER 0 finished in 0.902891
+
+100.000
+-np 4
+SENDER 1 finished sending 100000 data in 17.408342
+SENDER 2 finished sending 100000 data in 17.243776
+SENDER 3 finished sending 100000 data in 17.424402
+RECEIVER 0 finished in 17.424403
+
+-np 3
+SENDER 1 finished sending 100000 data in 8.923127
+SENDER 2 finished sending 100000 data in 9.010425
+RECEIVER 0 finished in 9.010426
+
+##############################
+# LOCKSHARED /w DISTRIBUTED
+##############################
+
+1.000
+-np 4
+SENDER 1 finished sending 1000 data in 0.187105
+SENDER 2 finished sending 1000 data in 0.187279
+SENDER 3 finished sending 1000 data in 0.187380
+RECEIVER 0 finished in 0.187321
+
+- np 3
+SENDER 1 finished sending 1000 data in 0.120097
+SENDER 2 finished sending 1000 data in 0.119886
+RECEIVER 0 finished in 0.120099
+
+10.000
+- np 4
+SENDER 1 finished sending 10000 data in 1.859944
+SENDER 2 finished sending 10000 data in 1.860295
+SENDER 3 finished sending 10000 data in 1.859906
+RECEIVER 0 finished in 1.860269
+
+- np 3
+SENDER 1 finished sending 10000 data in 1.187324
+SENDER 2 finished sending 10000 data in 1.187787
+RECEIVER 0 finished in 1.187764
+
+100.000 
+-np 4
+SENDER 1 finished sending 100000 data in 18.504597
+SENDER 2 finished sending 100000 data in 18.507777
+SENDER 3 finished sending 100000 data in 18.509800
+RECEIVER 0 finished in 18.509779
+
+-np 3
+SENDER 1 finished sending 100000 data in 11.469511
+SENDER 2 finished sending 100000 data in 11.467133
+RECEIVER 0 finished in 11.469492
