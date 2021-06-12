@@ -81,7 +81,7 @@ int append_buffer(int to_append)
             ERROR("Error in malloc(): No buffer is attached\n");
             return -1;
         }
-        size_old = 1;
+        size_old = MPI_BSEND_OVERHEAD;
     }
 
     // Alloc new buffer
@@ -127,7 +127,6 @@ int append_buffer(int to_append)
 
         return 1;
     }
-
     // Error handling for failed MPI_Buffer_attach()
     else
     {
