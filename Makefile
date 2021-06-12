@@ -2,7 +2,7 @@
 CC = mpicc
 
 # define any compile-time flags
-CFLAGS = -g -O -Wall -Wextra
+CFLAGS = -g -O3 -Wall -Wextra
 
 # define any directories containing header files other than /usr/include
 INCLUDES = #-I/Users/nguyenmanhduc/Documents/C\ library/cii/include
