@@ -21,8 +21,9 @@ MPI_Channel *channel_alloc_pt2pt_spsc_buf(MPI_Channel *ch)
 
     // DEBUG
     int error;
+    
     // Adjust buffer depending on the rank
-    if (error = append_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity : (int) (ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity) != 1)
+    if ((error = append_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity : (int) (ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity)) != 1)
     {
         ERROR("Error in append_buffer()\n");
         free(ch->receiver_ranks);
