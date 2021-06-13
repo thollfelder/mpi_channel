@@ -1,3 +1,13 @@
+/**
+ * @file PT2PT_MPMC_BUF.c
+ * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
+ * @brief 
+ * @version 1.0
+ * @date 2021-06-13
+ * 
+ * 
+ */
+
 #include "PT2PT_MPMC_BUF.h"
 
 // TODO:
@@ -12,9 +22,9 @@ MPI_Channel *channel_alloc_pt2pt_mpmc_buf(MPI_Channel *ch)
     // Store type of channel
     ch->type = PT2PT_MPMC;
 
-    // Update channel capacity to at least receiver_count or a multiple of it
-    // Capacity will be unchanged if condition is fullfilled
-    ch->capacity += ch->receiver_count - ch->capacity % ch->receiver_count;
+    // Update channel capacity to (a multiple of) receiver_count
+    if (ch->capacity % ch->receiver_count != 0)
+        ch->capacity += ch->receiver_count - ch->capacity % ch->receiver_count;
 
     // Sender can send loc_capacity of data items to every receiver
     ch->loc_capacity = ch->capacity / ch->receiver_count;
@@ -274,7 +284,6 @@ int channel_peek_pt2pt_mpmc_buf(MPI_Channel *ch)
 // TODO: Usage hint: Only call channelfree when all messages have been received or sent!
 int channel_free_pt2pt_mpmc_buf(MPI_Channel *ch)
 {
-    /*
     // Check if all messages have been sent and received
     // Needs to be done to assure that no message is on transit when channel is freed
     if (!ch->is_receiver)
@@ -310,7 +319,6 @@ int channel_free_pt2pt_mpmc_buf(MPI_Channel *ch)
             // Go to next rank
             ch->idx_last_rank++;
         }
-    */
 
     // Free memory used for storing buffered items for each receiver
     free(ch->receiver_buffered_items);
