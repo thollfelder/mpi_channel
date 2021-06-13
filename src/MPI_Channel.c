@@ -692,7 +692,7 @@ int channel_free(MPI_Channel *ch)
         }
         else
         {
-            return -1;
+            return channel_free_pt2pt_mpmc_buf(ch);
         }
         break;;
 
