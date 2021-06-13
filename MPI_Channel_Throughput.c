@@ -352,18 +352,28 @@ void test_case()
         // loop for doing multiple runs with the same datasize to get an average time measurement
         if (!peek && !print)
             for (int run = 0; run < iterations; run++)
+            {
+                MPI_Barrier(MPI_COMM_WORLD);
                 time_sum += throughput_noprint_nopeek(int_count);
+            }
         if (peek && !print)
             for (int run = 0; run < iterations; run++)
+            {
+                MPI_Barrier(MPI_COMM_WORLD);
                 time_sum += throughput_noprint_peek(int_count);
-
+            }
         if (!peek && print)
             for (int run = 0; run < iterations; run++)
+            {
+                MPI_Barrier(MPI_COMM_WORLD);
                 time_sum += throughput_print_nopeek(int_count);
-
+            }
         if (peek && print)
             for (int run = 0; run < iterations; run++)
+            {
+                MPI_Barrier(MPI_COMM_WORLD);
                 time_sum += throughput_print_peek(int_count);
+            }
 
         // printed time measurement
         int num_E = sizeof(int);
