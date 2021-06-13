@@ -162,7 +162,7 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
                 }
 
                 // Start nonblocking receive for answers of receivers regarding send request
-                if (MPI_Irecv(&msg_number, 1, MPI_INT, MPI_ANY_SOURCE, 0, ch->comm, &ch->req) != MPI_SUCCESS)
+                if (MPI_Irecv(&msg_number, 1, MPI_INT, MPI_ANY_SOURCE, ch->comm_size + 1, ch->comm, &ch->req) != MPI_SUCCESS)
                 {
                     ERROR("Error in MPI_Irecv(): Receive operation could not be started; Channel might be broken\n");
                     return -1;
@@ -270,7 +270,7 @@ int channel_receive_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
         }
 
         // Answer source of send request with received message number
-        if (MPI_Bsend(&msg_number, 1, MPI_INT, ch->status.MPI_SOURCE, 0, ch->comm) != MPI_SUCCESS)
+        if (MPI_Bsend(&msg_number, 1, MPI_INT, ch->status.MPI_SOURCE, ch->comm_size + 1, ch->comm) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Bsend(): Answer to source of send request could not be sent; Channel might be broken\n");
             return -1;
@@ -323,7 +323,7 @@ int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
             if (finished)
             {
                 // Request is finished
-                if (MPI_Send(&cancel_msg_null, 1, MPI_INT, ch->receiver_ranks[i], ch->comm_size + 1, ch->comm) != MPI_SUCCESS)
+                if (MPI_Send(&cancel_msg_null, 1, MPI_INT, ch->receiver_ranks[i], ch->comm_size + 2, ch->comm) != MPI_SUCCESS)
                 {
                     ERROR("Error in MPI_Send(): Sending cancel_msg failed; Channel might be broken\n");
                     return -1;
@@ -332,7 +332,7 @@ int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
             else
             {
                 // Request is not finished, need to wait until receiver received message
-                if (MPI_Send(&cancel_msg_one, 1, MPI_INT, ch->receiver_ranks[i], ch->comm_size + 1, ch->comm) != MPI_SUCCESS)
+                if (MPI_Send(&cancel_msg_one, 1, MPI_INT, ch->receiver_ranks[i], ch->comm_size + 2, ch->comm) != MPI_SUCCESS)
                 {
                     ERROR("Error in MPI_Send(): Sending cancel_msg failed; Channel might be broken\n");
                     return -1;
@@ -351,7 +351,7 @@ int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
         int cancel_msg;
         for (int i = 0; i < ch->sender_count; i++)
         {
-            if (MPI_Recv(&cancel_msg, 1, MPI_INT, MPI_ANY_SOURCE, ch->comm_size + 1, ch->comm, &ch->status) != MPI_SUCCESS)
+            if (MPI_Recv(&cancel_msg, 1, MPI_INT, MPI_ANY_SOURCE, ch->comm_size + 2, ch->comm, &ch->status) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Recv(): cancel_msg could not be received; Channel might be broken\n");
                 return -1;
