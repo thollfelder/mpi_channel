@@ -289,7 +289,7 @@ double throughput_noprint_nopeek(int len)
     }
     else
     {
-        // Consumer might need to receive more numbers
+        // Consumer might need to receive more or less numbers
         numbers = malloc(sizeof(int) * ceil((double)len * ((double) producers / (double) consumers)));
     }
 
@@ -345,7 +345,11 @@ double throughput_noprint_nopeek(int len)
 void test_case()
 {
     // loop with increasing number of integers (1, 2, ..., num_msg)
-    for (int int_count = 1; int_count <= num_msg; int_count *= 2)
+    //for (int int_count = 1; int_count <= num_msg; int_count *= 2)
+    //int int_count = ceil(log2(producers + consumers));
+    //int_count = exp2(int_count);
+    int int_count = producers*consumers;
+    for (; int_count <= num_msg; int_count *= 2)
     {
         double time_sum = 0.0;
 
@@ -548,7 +552,7 @@ int main(int argc, char *argv[])
                consumers);
         printf("Channel type is %s, channel communication is built on %s and buffer capacity is %d.\n", prop_str,
                type_str, capacity);
-        printf("The test is run %d time(s) from 1 to %d.\n\n", iterations, num_msg);
+        printf("The test is run %d time(s) from %d to %d.\n\n", iterations, producers*consumers, num_msg);
     }
 
     MPI_Barrier(MPI_COMM_WORLD);
