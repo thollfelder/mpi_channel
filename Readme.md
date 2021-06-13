@@ -9,11 +9,6 @@ with both communication mechanisms MPI offers (two-sided communication/pt2pt and
 - mpich/3.4 
 
 - PT2PT MPMC BUF:
-    - Läuft mit MPICH nur bis zu einer gewissen Anzahl an Nachrichten
-    - Läuft mit OpenMPI nur bis zu einer gewissen Anzahl an Nachrichten
-
-- PT2PT MPMC SYNC:
-    - Läuft mit MPICH durch
-    - Läuft mit OpenMPI nicht
+    - Läuft aufgrund der Implementierung nicht durch!
 
 - RMA läuft mit OpenMPI alles durch

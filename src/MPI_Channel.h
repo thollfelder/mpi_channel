@@ -138,6 +138,11 @@ int channel_free(MPI_Channel *ch);
  * - Referenzen der Channelfunktionen in struct speichern und abrufen
  * - Channel so gestalten, dass beim Freen keine Probleme entstehen, wenn nicht alle Nachrichten received wurden
  * 
+ * - Annahmen:
+ *  - Keine Threads!
+ *  - Faire Channels, kein Verhungern
+ *  - Asynchron <-> Synchron
+ * 
  */
 
 

@@ -4,7 +4,7 @@
 #SBATCH -N 1 
 #SBATCH --ntasks-per-node 8 
 #SBATCH -t 01:30:00 
-#SBATCH --nodelist node07
+#SBATCH --nodelist node20
 #SBATCH --exclusive
 
 echo "SLURM_CLUSTER_NAME:$SLURM_CLUSTER_NAME"
@@ -15,9 +15,10 @@ echo "SLURM_JOB_NUM_NODES:$SLURM_JOB_NUM_NODES"
 echo "HOST:$HOST"
 
 # Load Modules
-module load mpich/3.4
+# module load mpich/3.4
+module load openmpi/4.1.1-ucx-no-verbs-no-libfabric
 module load gcc/10.3.0
-echo `module avial`
+echo `modules loaded`
 
 echo 'mpirun version:'
 mpirun -version
@@ -26,7 +27,7 @@ date
 squeue # Check Queue
 echo
 
-lib_root="/home_ai2/sttasic/lib/bachlor_code"
+lib_root="/home_ai2/sthollfelder/bin/mpi_channel"
 job_root="$lib_root/ClusterWork/Bachelor_tests/ai2srv"
 
 echo "lib_root: $lib_root"

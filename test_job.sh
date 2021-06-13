@@ -1,18 +1,51 @@
 #!/bin/bash
 
-mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 2 ./Test --type PT2PT --capacity 1 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 3 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 3 ./Test --type PT2PT --capacity 1 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 4 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
-mpirun -np 4 ./Test --type PT2PT --capacity 1 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
+# Load Modules
+# module load mpich/3.4
 
-mpirun -np 2 ./Test --type RMA --capacity 0 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 2 ./Test --type RMA --capacity 1 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 3 ./Test --type RMA --capacity 0 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 3 ./Test --type RMA --capacity 1 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
-mpirun -np 4 ./Test --type RMA --capacity 0 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
-mpirun -np 4 ./Test --type RMA --capacity 1 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
+cap=0
+procs=2
+prod=1
+rec=1
+msgs=1000000
+iter=10
+
+mpi_impl1="openmpi/4.1.1-ucx-no-verbs-no-libfabric"
+mpi_impl2="mpich/3.4"
+
+module load openmpi/4.1.1-ucx-no-verbs-no-libfabric
+module load gcc/10.3.0
+echo "Modules loaded"
+
+date_today=$(date -d yesterday '+%Y-%m-%d-%T')
+file_name="measurements-"$date_today.csv
+header="chantype, com_mech, num_procs, num_prod, num_cons, iterations, capacity, is_receiver, rank, byte, byte_indi, time, bandwidth, implementation"
+echo $header > $file_name
+echo "File created"
+echo "Starting measurement..."
+
+mpirun -np $procs ./Test --type PT2PT --capacity $cap --producers $prod --receivers $rec --msg_num $msgs --iterations $iter --file_name $file_name --implementation $impl
+
+
+
+
+
+
+
+
+
+#mpirun -np 2 ./Test --type PT2PT --capacity 1 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 3 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 3 ./Test --type PT2PT --capacity 1 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 4 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
+#mpirun -np 4 ./Test --type PT2PT --capacity 1 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
+
+#mpirun -np 2 ./Test --type RMA --capacity 0 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 2 ./Test --type RMA --capacity 1 --producers 1 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 3 ./Test --type RMA --capacity 0 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 3 ./Test --type RMA --capacity 1 --producers 2 --receivers 1 --msg_num 10000 --iterations 5
+#mpirun -np 4 ./Test --type RMA --capacity 0 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
+#mpirun -np 4 ./Test --type RMA --capacity 1 --producers 2 --receivers 2 --msg_num 10000 --iterations 5
 
 #Processors="1 4 8"
 #
