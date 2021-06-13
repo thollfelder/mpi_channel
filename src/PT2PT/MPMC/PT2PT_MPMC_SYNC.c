@@ -111,7 +111,7 @@ MPI_Channel *channel_alloc_pt2pt_mpmc_sync(MPI_Channel *ch)
 int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
 {
     // Used to store received message number
-    int msg_number;
+    int msg_number = -1;
 
     // Used to MPI_Test if last cancel message arrived at receiver r
     int request_flag;
@@ -320,12 +320,12 @@ int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
             if (finished)
             {
                 // Request is finished
-                MPI_Send(&cancel_msg_null, 1, MPI_INT, ch->receiver_ranks[i], 1, ch->comm);
+                MPI_Send(&cancel_msg_null, 1, MPI_INT, ch->receiver_ranks[i], ch->comm_size + 1, ch->comm);
             }
             else
             {
                 // Request is not finished, need to wait until receiver received message
-                MPI_Send(&cancel_msg_one, 1, MPI_INT, ch->receiver_ranks[i], 1, ch->comm);
+                MPI_Send(&cancel_msg_one, 1, MPI_INT, ch->receiver_ranks[i], ch->comm_size + 1, ch->comm);
                 MPI_Wait(&ch->requests[i], MPI_STATUS_IGNORE);
             }
         }
@@ -335,7 +335,7 @@ int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
         int cancel_msg;
         for (int i = 0; i < ch->sender_count; i++)
         {
-            MPI_Recv(&cancel_msg, 1, MPI_INT, MPI_ANY_SOURCE, 1, ch->comm, &ch->status);
+            MPI_Recv(&cancel_msg, 1, MPI_INT, MPI_ANY_SOURCE, ch->comm_size + 1, ch->comm, &ch->status);
 
             if (cancel_msg == 1)
             {
