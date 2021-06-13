@@ -111,7 +111,7 @@ MPI_Channel *channel_alloc_pt2pt_mpmc_sync(MPI_Channel *ch)
 int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
 {
     // Used to store received message number
-    int msg_number = -1;
+    int msg_number;
 
     // Used to MPI_Test if last cancel message arrived at receiver r
     int request_flag;
@@ -172,7 +172,7 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
                 msg_received = 0;
             }
 
-        // Stay in this loop if every receiver has a send request with current message number received
+            // Stay in this loop if every receiver has a send request with current message number received
         } while (cnt >= ch->receiver_count);
 
         // Test for arrival of cancel message at receiver r
@@ -189,7 +189,7 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
             // Send send request (message containing message counter and rank as tag) to receiver i
             if (MPI_Bsend(&ch->msg_counter, 1, MPI_INT, ch->receiver_ranks[last_rank], ch->my_rank, ch->comm) != MPI_SUCCESS)
             {
-                ERROR("Error in MPI_BSend(): Send request could not be sent\n");
+                ERROR("Error in MPI_Bsend(): Send request could not be sent\n");
                 return -1;
             }
 
@@ -200,7 +200,7 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
             cnt++;
         }
 
-        // Incremekt last_rank to check for the next receiver
+        // Increment last_rank to check for the next receiver
         last_rank++;
     }
 
@@ -270,14 +270,14 @@ int channel_receive_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
         }
 
         // Answer source of send request with received message number
-        if (MPI_Bsend(&msg_number, 1, MPI_INT,  ch->status.MPI_SOURCE, 0, ch->comm) != MPI_SUCCESS)
+        if (MPI_Bsend(&msg_number, 1, MPI_INT, ch->status.MPI_SOURCE, 0, ch->comm) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Bsend(): Answer to source of send request could not be sent; Channel might be broken\n");
             return -1;
         }
 
         // Wait for data or cancel message
-        if (MPI_Probe( ch->status.MPI_SOURCE, MPI_ANY_TAG, ch->comm, &ch->status) != MPI_SUCCESS)
+        if (MPI_Probe(ch->status.MPI_SOURCE, MPI_ANY_TAG, ch->comm, &ch->status) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Probe(): Probing for data/cancel message failed; Channel might be broken\n");
             return -1;
@@ -286,7 +286,7 @@ int channel_receive_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
         // If tag of incoming message is not comm_size calling message contains data
         if (ch->status.MPI_TAG != ch->comm_size)
         {
-            if (MPI_Recv(data, ch->data_size, MPI_BYTE,  ch->status.MPI_SOURCE,  ch->status.MPI_SOURCE, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->status.MPI_SOURCE, ch->status.MPI_SOURCE, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Recv(): Data could not be received; Channel might be broken\n");
                 return -1;
@@ -294,7 +294,7 @@ int channel_receive_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
             return 1;
         }
         // Else incoming message is a cancel message
-        if (MPI_Recv(NULL, 0, MPI_INT,  ch->status.MPI_SOURCE, ch->comm_size, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+        if (MPI_Recv(NULL, 0, MPI_INT, ch->status.MPI_SOURCE, ch->comm_size, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Recv(): Cancel message could not be received; Channel might be broken\n");
             return -1;
@@ -304,6 +304,50 @@ int channel_receive_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
 
 int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
 {
+    // Need to assure that all messages have been received before freeing the channel
+    // Signal receiver if a cancel message needs to be received
+    if (!ch->is_receiver)
+    {
+        int cancel_msg_one = 1;
+        int cancel_msg_null = 0;
+
+        int finished = 0;
+
+        for (int i = 0; i < ch->receiver_count; i++)
+        {
+            MPI_Test(&ch->requests[i], &finished, MPI_STATUS_IGNORE);
+
+            if (finished)
+            {
+                // Request is finished
+                MPI_Send(&cancel_msg_null, 1, MPI_INT, ch->receiver_ranks[i], 1, ch->comm);
+            }
+            else
+            {
+                // Request is not finished, need to wait until receiver received message
+                MPI_Send(&cancel_msg_one, 1, MPI_INT, ch->receiver_ranks[i], 1, ch->comm);
+                MPI_Wait(&ch->requests[i], MPI_STATUS_IGNORE);
+            }
+        }
+    }
+    else
+    {
+        int cancel_msg;
+        for (int i = 0; i < ch->sender_count; i++)
+        {
+            MPI_Recv(&cancel_msg, 1, MPI_INT, MPI_ANY_SOURCE, 1, ch->comm, &ch->status);
+
+            if (cancel_msg == 1)
+            {
+                int msg_number;
+                // Receive send request and cancel message
+                MPI_Recv(&msg_number, 1, MPI_INT, ch->status.MPI_SOURCE, MPI_ANY_TAG, ch->comm, MPI_STATUS_IGNORE);
+
+                // Receive cancel message;
+                MPI_Recv(NULL, 0, MPI_INT, ch->status.MPI_SOURCE, ch->comm_size, ch->comm, MPI_STATUS_IGNORE);
+            }
+        }
+    }
 
     // Free allocated memory used for storing requests
     free(ch->requests);
@@ -316,7 +360,7 @@ int channel_free_pt2pt_mpmc_sync(MPI_Channel *ch)
     // Mark shadow comm for deallocation
     // Should be nothrow since shadow comm duplication was successful
     MPI_Comm_free(&ch->comm);
-    
+
     // Adjust buffer depending on the rank
     int error = shrink_buffer(ch->is_receiver ? (sizeof(int) + MPI_BSEND_OVERHEAD) * ch->sender_count : (sizeof(int) + MPI_BSEND_OVERHEAD) * ch->receiver_count);
 
