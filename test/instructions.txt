@@ -2,3 +2,8 @@ Lokaler Ordner im AI2: /home_ai2/sthollfelder
 
 
 https://github.com/thollfelder/mpi_channel
+
+// Copy file from remote to local host executing at local host
+scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/mpi_channel/measurements_2021_06_12_22_35_32.csv /home/krapfen/vsc_workspace/projects/mpi_channel
+
+scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/mpi_channel/file /home/krapfen/vsc_workspace/projects/mpi_channel/measurements
