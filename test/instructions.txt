@@ -8,6 +8,15 @@ scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/mpi_chann
 
 scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/mpi_channel/file /home/krapfen/vsc_workspace/projects/mpi_channel/measurements
 
+// Copy file from local host to remote executing at local host
+scp /home/krapfen/vsc_workspace/projects/mpi_channel/test_job_slurm2.sh sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin
+scp -r for directories
 
 // Delete all .o Files in current and subdirectory
 find . -type f -name '*.o' -exec rm {} +
+
+
+mpirun --hostfile my_hostfile -np 2 Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 100000 --iterations 10 --file_name file_new --implementation openmpi/4.1.1-ucx-no-verbs-no-libfabric
+
+
+scp /home/krapfen/vsc_workspace/projects/mpi_channel/MPI_Hello_World.c sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin
