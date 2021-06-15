@@ -17,3 +17,6 @@ mpirun -np 2 ./Test --type PT2PT --capacity 128 --producers 1 --receivers 1 --ms
 mpirun -np 2 ./Test --type PT2PT --capacity 256 --producers 1 --receivers 1 --msg_num 1000000 --iterations 10 --file_name $file_name --implementation OpenMPI
 mpirun -np 2 ./Test --type PT2PT --capacity 512 --producers 1 --receivers 1 --msg_num 1000000 --iterations 10 --file_name $file_name --implementation OpenMPI
 mpirun -np 2 ./Test --type PT2PT --capacity 1024 --producers 1 --receivers 1 --msg_num 1000000 --iterations 10 --file_name $file_name --implementation OpenMPI
+
+
+mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 1000000 --iterations 10 --file_name dump --implementation OpenMPI

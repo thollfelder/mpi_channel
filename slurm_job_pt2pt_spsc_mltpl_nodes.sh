@@ -4,7 +4,7 @@
 #SBATCH --output job.%j.out 
 #SBATCH --nodes 1                                       # Required number of nodes
 #SBATCH --ntasks-per-node 2                             # Maximum processes per node
-#SBATCH --time 02:00:00                                 # Sets a time limit
+#SBATCH --time 00:05:00                                 # Sets a time limit
 #SBATCH --nodelist node03                               # Requests a specific list of hosts
 #SBATCH --exclusive  
 
@@ -22,7 +22,7 @@ cap="0 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192"
 procs=2
 prod=1
 rec=1
-msgs=10000000
+msgs=1000
 iter=10
 
 mpi_impl1="openmpi/4.1.1-ucx-no-verbs-no-libfabric"
@@ -48,10 +48,12 @@ echo "Compiled new"
 # create file for measurements
 date_today=$(date -d yesterday '+%Y-%m-%d-%T')
 file_name="measurements-"$date_today.csv
-header="chantype,com_mech,num_procs,num_prod,num_cons,iterations,capacity,is_receiver,rank,byte,byte_indi,time,bandwidth,implementation,node"
+header="chantype, com_mech, num_procs, num_prod, num_cons, iterations, capacity, is_receiver, rank, byte, byte_indi, time, bandwidth, implementation"
 echo $header > $file_name
 echo "File $file_name created"
 echo "Starting measurements..."
+
+mpirun -np $procs ./Test --type PT2PT --capacity $cap --producers $prod --receivers $rec --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
 
 for ca in $cap; do 
     mpirun -np $procs ./Test --type PT2PT --capacity $ca --producers $prod --receivers $rec --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1

@@ -26,7 +26,7 @@ extern int optind;
 int rank, size, type, capacity, producers, consumers, num_msg, iterations;
 int print = 0, peek = 0, validate = 0;
 FILE *f_ptr;
-char prop_str[256], type_str[256], file_name[256], implementation[256];
+char prop_str[256], type_str[256], file_name[256], implementation[256], name[MPI_MAX_PROCESSOR_NAME];
 char *cons = "Consumer";
 char *prod = "Producer";
 
@@ -424,9 +424,9 @@ void test_case()
             int procs = producers + consumers;
 
             // Write own results
-            fprintf(f_ptr, "%s,%s,%d,%d,%d,%d,%d,%s,%d,%li,%li,%.9f,%.9f,%s\n", 
+            fprintf(f_ptr, "%s,%s,%d,%d,%d,%d,%d,%s,%d,%li,%li,%.9f,%.9f,%s,%s\n", 
             type_str, prop_str, procs, producers, consumers, iterations, capacity, rank < consumers ? cons : prod, rank, 
-            num_B, num_B_i, avg_time_per_transfer, num_GB / avg_time_per_transfer, implementation);
+            num_B, num_B_i, avg_time_per_transfer, num_GB / avg_time_per_transfer, implementation, name);
 
             // Write results of every other proc
             for (int i = 1; i < consumers + producers; i++)
@@ -435,9 +435,9 @@ void test_case()
                 MPI_Recv(&num_B_i, 1, MPI_LONG_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
                 MPI_Recv(&avg_time_per_transfer, 1, MPI_FLOAT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            fprintf(f_ptr, "%s,%s,%d,%d,%d,%d,%d,%s,%d,%li,%li,%.9f,%.9f,%s\n", 
+            fprintf(f_ptr, "%s,%s,%d,%d,%d,%d,%d,%s,%d,%li,%li,%.9f,%.9f,%s,%s\n", 
                 type_str, prop_str, procs, producers, consumers, iterations, capacity, i < consumers ? cons : prod, i, 
-                num_B, num_B_i, avg_time_per_transfer, num_GB / avg_time_per_transfer, implementation);                
+                num_B, num_B_i, avg_time_per_transfer, num_GB / avg_time_per_transfer, implementation,name);                
             }
         }
         else
@@ -613,12 +613,10 @@ int main(int argc, char *argv[])
 
     MPI_Barrier(MPI_COMM_WORLD);
 
-    char name[MPI_MAX_PROCESSOR_NAME];
     int len;
 
     for (int i = 0; i < size; i++)
     {
-
         if (i == rank)
         {
             MPI_Get_processor_name(name, &len);
