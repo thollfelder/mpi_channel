@@ -30,6 +30,14 @@ echo "Module $mpi_impl1 loaded"
 module load $gcc_comp
 echo "Module $gcc_comp loaded"
 
+# clean all .o files
+find . -type f -name '*.o' -exec rm {} +
+echo "Cleaned binaries"
+
+# compile with loaded compiler
+make
+ech "Compiled new"
+
 # create file for measurements
 date_today=$(date -d yesterday '+%Y-%m-%d-%T')
 file_name="measurements-"$date_today.csv
