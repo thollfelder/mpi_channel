@@ -32,7 +32,7 @@ module load openmpi/4.1.1-ucx-no-verbs-no-libfabric
 #echo "Module $gcc_comp loaded"
 
 # clean all .o files
-#find . -type f -name '*.o' -exec rm {} +
+find . -type f -name '*.o' -exec rm {} +
 #echo "Cleaned binaries"
 
 # compile with loaded compiler

@@ -20,3 +20,6 @@ mpirun -np 2 ./Test --type PT2PT --capacity 1024 --producers 1 --receivers 1 --m
 
 
 mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 1000000 --iterations 10 --file_name dump --implementation OpenMPI
+
+
+mpirun --mca btl_openib_allow_ib 1 -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 100000 --iterations 2 --file_name $file_name --implementation OpenMPI

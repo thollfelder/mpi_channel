@@ -15,6 +15,9 @@ echo "SLURM_JOB_NODELIST:$SLURM_JOB_NODELIST"
 echo "SLURM_JOB_NUM_NODES:$SLURM_JOB_NUM_NODES"
 echo "HOST:$HOST"
 
+# starts local session on node03 to compile
+srun --nodes=2 --ntasks-per-node=16 --time=02:00:00 --exclusive --nodelist node03,node04 --pty bash -i
+
 mpi_impl1="openmpi/4.1.1-ucx-no-verbs-no-libfabric"
 mpi_impl2="mpich/3.4"
 gcc_comp="gcc/10.3.0"
@@ -32,8 +35,22 @@ echo "Cleaned binaries"
 mpicc MPI_Hello_World.c -o HelloWorld
 echo "Compiled new"
 
-
 echo "Starting mpi program..."
-mpirun -np 2 -host $SLURM_JOB_NODELIST HelloWorld 
+mpirun --mca osc ucx -np 4 -host $SLURM_JOB_NODELIST HelloWorld 
+mpiexec --mca osc ucx -np 4 -host $SLURM_JOB_NODELIST HelloWorld 
 echo "Finished mpi program"
 
+# ends local session on node03
+exit
+
+
+
+srun --nodes=2 --ntasks-per-node=1 --time=02:00:00 --exclusive --nodelist node03,node04 --pty bash -i
+module load openmpi/4.1.1-ucx-no-verbs-no-libfabric
+
+
+# MCA osc: sm (MCA v2.1.0, API v3.0.0, Component v4.1.1)
+# MCA osc: monitoring (MCA v2.1.0, API v3.0.0, Component v4.1.1)
+# MCA osc: pt2pt (MCA v2.1.0, API v3.0.0, Component v4.1.1)
+# MCA osc: rdma (MCA v2.1.0, API v3.0.0, Component v4.1.1)
+# MCA osc: ucx (MCA v2.1.0, API v3.0.0, Component v4.1.1)

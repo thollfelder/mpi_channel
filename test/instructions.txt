@@ -6,8 +6,6 @@ https://github.com/thollfelder/mpi_channel
 // Copy file from remote to local host executing at local host
 scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/mpi_channel/measurements_2021_06_12_22_35_32.csv /home/krapfen/vsc_workspace/projects/mpi_channel
 
-scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/mpi_channel/file /home/krapfen/vsc_workspace/projects/mpi_channel/measurements
-
 // Copy file from local host to remote executing at local host
 scp /home/krapfen/vsc_workspace/projects/mpi_channel/test_job_slurm2.sh sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin
 scp -r for directories
@@ -20,3 +18,8 @@ mpirun --hostfile my_hostfile -np 2 Test --type PT2PT --capacity 0 --producers 1
 
 
 scp /home/krapfen/vsc_workspace/projects/mpi_channel/slurm_job_pt2pt_spsc.sh sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/github/mpi_channel
+
+scp sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/github/mpi_channel/measurements-2021-06-14-20:26:21.csv /home/krapfen/vsc_workspace/projects/mpi_channel
+scp /home/krapfen/vsc_workspace/projects/mpi_channel/slurm_job_pt2pt_mpsc_sync.sh sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/github/mpi_channel/
+
+scp /home/krapfen/vsc_workspace/projects/mpi_channel/test_job_slurm_echo.sh sthollfelder@ai2srv.inf.uni-bayreuth.de:/home_ai2/sthollfelder/bin/github/

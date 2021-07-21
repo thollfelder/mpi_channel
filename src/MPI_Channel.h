@@ -35,29 +35,28 @@
 int channel_init();
 
 /**
- * @brief Allocates and returns a channel with MPI_Chan_traits chan_traits for elements of size bytes and capacity n.
+ * @brief Allocates and returns a channel with given parameter as channel properties
  *
- * @param size_t size                 Determines element size in bytes
- * @param unsigned int n              Capacity of channel, maximum number of buffered elements
- * @param MPI_Chan_internal_type it   Represents the internal channel type
- * @param MPI_Comm comm               States the group of processes the channel will be linking
- * @param   int                         States the rank of the target processor (where buffer is saved)
+ * @param size_t The size of each data element
+ * @param int The Capacity which determines if the channel is buffered (>0) or unbuffered and thus synchronous (<=0)
+ * @param MPI_Chan_type Determines the underlying communication of the channel. Can be PT2PT or RMA
+ * @param MPI_Comm The communicator of the group of processes. Every process of the comm needs to call this function
+ * @param int This flag determines if the calling process is a receiver (1) or sender (0)
  * 
- * @return  MPI_Channel*        Pointer to a newly allocated MPI_Channel (or NULL if failed) 
+ * @return Returns a pointer to a MPI_Channel if allocation was successfull, NULL otherwise
  * 
- * @note The success of channel construction depends on the type of channel to be created
+ * @note This function might fail if:
+ *  - it is called with invalid parameter (e.g. wrong size or communicator, no sender or receiver),
+ *  - MPI is not initialized,
+ *  - memory allocation failed or
+ *  - internal problems in MPI related function calls happened
  * 
- * @note In general:
- *  - the size of the element must not be 0 or negative
- *  - the communicator must be valid (e.g. no null communicator)
- *  - the target rank must not be negative or greater than the size of the communicator
+ * @note Depending on the number of receivers and senders three channel types are possible:
+ *  - Single Producer Single Consumer (SPSC): one sender and one receiver process,
+ *  - Multiple Producer Single Consumer (MPSC): multiple sender and one receiver process or
+ *  - Multiple Producer Multiple Conumser (MPMC): multiple sender and receiver processes
  * 
- * @note For SPSC channels:
- *  - the capacity of the channels should be 0
- *  - the size of the communicator shhould be 2 
-
- * 
- * 
+ * @note For each communication and channel type a own implementation is used. 
 */
 MPI_Channel* channel_alloc(size_t size, int n, MPI_Chan_type type, MPI_Comm comm, int is_receiver);
 
@@ -130,9 +129,6 @@ int channel_free(MPI_Channel *ch);
 // TODO: Channel_peek dokumentieren, dass Fortschritt nicht garantiet wird...
 #endif
 
-
-
-
 /*
  * Optimierungen:
  * - Referenzen der Channelfunktionen in struct speichern und abrufen
@@ -144,6 +140,88 @@ int channel_free(MPI_Channel *ch);
  *  - Asynchron <-> Synchron
  * 
  */
+
+
+
+
+
+
+
+
+
+
+/* 13.07.21
+ *
+ *
+ * 
+ * Hatte die letzten Woche ja ein paar Probleme. 
+ * Und zwar hab ich Anfang letzten Monats meine zweite Impfung 
+ * gegen Covid 19 erhalten und hab da an starke
+ * Nebenwirkungen gelitten. Hatte durchgehend 
+ * starke Kopfschmerzen und hab deswegen die Bachelorarbeit komplett
+ * liegen lassen.
+ * 
+ * Die letzten Tage hab ich meine Gliederung final angepasst:
+ * 
+ * Überblick über die Ebenen der Parallelverarbeitung: Soll Über-
+ * blick für nachfolgende Kapitel schaffen, da verschiedene Ebenen
+ * Einfluss auf Programmiermodell haben. Konzentriert sich dann
+ * hauptsächlich auf SingleProgramMultipleData
+ * 
+ * Parallele Programmiermodelle: Kriterien erwähnen mit denen
+ * Parallele Programmiermodelle unterschieden werden können, das 
+ * Buch von Professor Rauber gut erläutert werden
+ * 
+ * Shared Memory: Caching und Einfluss auf gemeinsame Variablen, 
+ * Speicherkonsistenzmodell und MPI, Lockfreie und
+ * lockbasierte Synchronisation
+ * 
+ * Baustellen: Message-Passing Kapitel und Besonderheiten für 
+ * Implementierung
+ * 
+ * 
+ * 
+ * Todo:
+ *  - Bachelorarbeit weiterschreiben:
+ *  - Tests fertiglaufen
+ * 
+ *  
+ */
+
+
+
+
+
+
+/*
+ * 
+ *
+ * 
+ * - Throughout-Tests sind am Durchlaufen
+ * - 10 Iterationen sind zu viel, da Channels mit verschiedener Anzahl an Empfängern/Sendern, Puffergröße, Daten durchlaufen müssen
+ * - Erste Ergebnisse sind interessant
+ * 
+ * 
+ * - Frage:
+ *  - bezüglich Slurmscript und der Ausführung auf verschiedenen Nodes
+ *  - 4.1.0 testen!
+ *  - ob momentan genutzte Scripts passen?
+ * 
+ * - Gliederung etwas umstrukturiert, um besseren Einstieg in den technischen Hintergrund zu schaffen
+ * 
+ *  
+ */
+
+
+
+
+
+
+
+
+
+
+
 
 
 

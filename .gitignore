@@ -1,2 +1,11 @@
 # Ignore all compiled output files
 *.o
+
+# Ignore those folders
+/.vscode
+/batch
+/html
+/measurements
+/out
+/thrash
+/Tests
