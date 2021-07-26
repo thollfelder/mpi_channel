@@ -7,7 +7,7 @@
  * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  * 
  * This channel implementation originated from my bachelor thesis "Design und Implementierung von Channels im
- * verteilten Adressraum" at the University of Bayreuth, and is intentend to be used on clusters with distributed adress 
+ * verteilten Adressraum" at the University of Bayreuth, and is intended to be used on clusters with distributed adress 
  * space using MPI as a communication library.
  * 
  * The channels can be categorized into three classes: The first one is the underlying communication type MPI offers, 

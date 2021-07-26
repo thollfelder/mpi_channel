@@ -1,14 +1,19 @@
-# MPI_Channel #
+# MPI Channel #
 
-This is an implementation of channels builds on MPI. It offers implementations of different queues (SPSC, MPSC, MPMC) 
-with both communication mechanisms MPI offers (two-sided communication/pt2pt and one-sided communication/rma).
+This channel implementation originated from my bachelor thesis "Design und Implementierung von Channels im
+verteilten Adressraum" at the University of Bayreuth, and is intended to be used on clusters with distributed addresss 
+space using MPI as a communication library.
 
-# BUGS #
+# Implementation #
 
-- openmpi/4.1.1-ucx-no-verbs-no-libfabric
+The channels can be classified by the number of sender and receivers (SPSC, MPSC, MPMC), the channel capacity (buffered
+and asynchronous or unbuffered and synchronous) and the underlying communication (MPI PT2PT or RMA).
+
+# Tested versions #
+
+- openmpi/4.1.1
 - mpich/3.4 
 
-- PT2PT MPMC BUF:
-    - Läuft aufgrund der Implementierung nicht durch!
+# Known bugs #
 
-- RMA läuft mit OpenMPI alles durch
+- RMA MPMC SYNC does not run on distributed server nodes using openmpi
