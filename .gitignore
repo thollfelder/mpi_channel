@@ -12,3 +12,4 @@ Tests
 MPSC/old
 MPSC/measurements
 src/Queue
+.vscode
