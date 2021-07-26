@@ -9,7 +9,7 @@ measurements
 out
 thrash
 Tests
-MPSC/old
-MPSC/measurements
+src/RMA/MPSC/old
+src/RMA/MPSC/measurements
 src/Queue
 .vscode
