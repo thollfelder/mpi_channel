@@ -1,12 +1,10 @@
 /**
  * @file PT2PT_MPSC_SYNC.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief Implementation of PT2PT MPSC synchronous channel
- * @version 0.1
+ * @brief Implementation of PT2PT MPSC SYNC channel
+ * @version 1.0
  * @date 2021-04-08
- * 
- * @copyright Copyright (c) 2021
- * 
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  */
 
 #include "PT2PT_MPSC_SYNC.h"
@@ -14,7 +12,7 @@
 MPI_Channel *channel_alloc_pt2pt_mpsc_sync(MPI_Channel *ch)
 {
     // Store type of channel
-    ch->type = PT2PT_MPSC;
+    ch->chan_type = MPSC;
 
     // Set index of last rank to 0
     // Will be used for receiver to iterate over all sender
@@ -65,11 +63,10 @@ int channel_send_pt2pt_mpsc_sync(MPI_Channel *ch, void *data)
 
 int channel_receive_pt2pt_mpsc_sync(MPI_Channel *ch, void *data)
 {
-    // Loop over all sender until a data message can be received starting from stored last sender rank
-    // Guarantees fairness
+    // Loop over all sender until a element can be received; guarantees fairness
     while (1)
     {
-        // If current sender index is equal to count of sender reset to 0
+        // If current sender index is equal to sender count reset to 0
         if (ch->idx_last_rank >= ch->sender_count) {
             ch->idx_last_rank = 0;
         }
@@ -85,13 +82,14 @@ int channel_receive_pt2pt_mpsc_sync(MPI_Channel *ch, void *data)
         if (ch->flag)
         {
             // Call blocking receive
-            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm, 
+            MPI_STATUS_IGNORE) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Recv(): Data could not be received\n");
                 return -1;
             }
 
-            // Increment current sender index and restore it in last_rank for next channel_receive call
+            // Increment current sender index and restore it in idx_last_rank for next call
             ch->idx_last_rank++;
 
             return 1;

@@ -1,28 +1,26 @@
 /**
  * @file RMA_SPSC_BUF.h
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief Header of RMA SPSC Buffered Channel
- * @version 0.1
+ * @brief Header of RMA SPSC BUF Channel
+ * @version 1.0
  * @date 2021-01-19
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  * 
- * @copyright Copyright (c) 2021
+ * This RMA SPSC BUF channel implementation uses passive target communication since active target communication is not
+ * suited for this kind of channel. MPI_Win_fence() works as barrier over all processes of the communicator which 
+ * prohibits asynchronous communication. MPI Post-Start-Complete-Wait is basically suitable but shows disadvantages 
+ * compared to passive target communication. This is due to the fact that this implementation uses a ciruclar buffer 
+ * stored at the receiver process and a distributed read and write index where the read index is located at the receiver
+ * process and points to the first sent element and the write index is located at the sender process and points to the 
+ * latest free memory location. The advantage of using passive target synchronization is that both processes can use a 
+ * shared lock and access the windows of the other process concurrently to put or get the data element and update the 
+ * respective index. MPI PSCW has the disadvantage that it only allows exposure and access epochs bot not both 
+ * concurrently.
  * 
- * 
- * Funktionsweise:
- *  
- * RMA Channels kommunizieren über Remote Memory Access: Prozesse können auf ausgewiesenen Speicherinhalt von anderen Prozessen zugreifen.
- * Dafür müssen entweder beide Prozesse (active synchronization) oder nur ein Prozess (passive synchronization) beteiligt sein. 
- * 
- * Als Puffer wird ein Ringpuffer benutzt, der mittels zwei Read- und Write-Indices die momentane Pufferkapazität angibt und an welcher 
- * Stelle Daten gespeichert sind. Dabei gilt: Sind Read und Writeindex gleich, ist der Puffer voll. Ist der Writeindex hinter dem Readindex
- * ist der Puffer leer. In allen anderen Fällen hat der Puffer genau Write - Read (wenn Write >= Read) bzw. Capacity + 1 + Write - Read (wenn
- * Write < Read) Anzahl an Datenobjekten abgespeichert. Die Funktionsweise des RMA Buf Channels ist, dass sowohl Sender als auch Receiver
- * beide Indices abspeichern, der Receiver zusätzlich den Speicher für die Daten. Beim Senden prüft der Sender seine Indices und sendet bei
- * genug Platz seine Daten an die richtige Stelle und aktualisiert den Writeindex bei sich selbst und beim Receiver. Will der Receiver Daten
- * empfangen, prüft der Receiver seine Indices, ließt vom Speicher und aktualisiert den Readindex bei sich selbst und beim Sender.
- * 
+ * Regarding progress guarantees this implementation is wait-free under the requirement that the internal buffer is 
+ * neither empty nor full which means that channel_send_rma_spsc_buf() and channel_receive_rma_spsc_buf() will complete
+ * in a fixed number of steps independently of the other process.
  */
-// TODO: Channeldescription
 
 #ifndef RMA_SPSC_BUF_H
 #define RMA_SPSC_BUF_H
@@ -30,60 +28,48 @@
 #include "../../MPI_Channel_Struct.h"
 
 /**
- * @brief Allocates and initializes a MPI_Channel of type RMA SPSC buffered and returns a pointer to it
- * 
- * @param[in] size Size in bytes of an item to be transfered between the channels. Should be 1 or greater
- * @param[in] n Number of items of given size to be buffered. Should be 1 or greater
- * @param[in] comm Communicator of processes. Since channel is SPSC size of comm should be 2
- * @param[in] target_rank Rank of the receiving process
- * 
- * @return Returns a pointer to a valid MPI_Channel if construction was successful, NULL otherwise.
- * 
- * @note Returns NULL if internal functions failed (malloc(), MPI_Alloc_mem(), MPI functions, etc.)
+ * @brief Updates the properties of a passed MPI_Channel of type RMA SPSC BUF and returns it.
+ * @param[in, out] ch Pointer to a MPI_Channel allocated with channel_alloc(). 
+ * @return Returns a pointer to a valid MPI_Channel with updated properties if updating was successful and NULL otherwise
+ * @note Returns NULL if MPI related functions or allocation memory failure happend.
  */
 MPI_Channel *channel_alloc_rma_spsc_buf(MPI_Channel *ch);
 
 /**
- * @brief Sends one item from the data array to the passed channel ch
- * 
- * @param[in,out] ch Pointer to a MPI_Channel allocated with channel_alloc_rma_spsc_buf                 
- * @param[in] data Pointer to the array holding the item to be sent
- * 
- * @return Returns 1 if sending was successful, 0 if the buffer is full and -1 otherwise
- * 
- * @note Returns -1 if internal problems with MPI related functions happend (MPI_Put(), MPI_Win_lock_all(), etc.)
+ * @brief Sends the numbers of bytes of a data element specified in channel_alloc() starting at the adress the void 
+ * pointer holds into the channel. Calling channel_send_rma_spsc_buf() blocks only if the channel buffer has reached
+ * the channel capacity. 
+ * @param[in] ch Pointer to a MPI_Channel of type RMA SPSC BUF.              
+ * @param[in] data Pointer to a memory adress of which size bytes will be sent from.
+ * @return Returns 1 if sending was successful, -1 otherwise.
+ * @note Returns -1 if internal problems with MPI related functions happend.
  */
 int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data);
 
 /**
- * @brief   Receives data from the passed channel ch and stores it into given data buffer
- * 
- * @param[in] ch Pointer to a MPI_Channel allocated with channel_alloc_rma_spsc_buf                 
- * @param[out] data Pointer to the buffer where the item will be stored 
- * 
- * @return Rreturns 1 if receiving was successful, 0 if the buffer is empty and -1 otherwise
- * 
- * @note Returns -1 if internal problems with MPI related functions happend (MPI_Win_lock_all(), etc.)
+ * @brief Receives the numbers of bytes of a data element specified in channel_alloc() from the channel and stores them
+ * starting at the adress the void pointer holds. Calling channel_receive_rma_spsc_buf() blocks only if no element has
+ * arrived and the internal buffer stores no message. 
+ * @param[in] ch Pointer to a MPI_Channel of type RMA SPSC BUF.                 
+ * @param[in] data Pointer to a memory adress of which size bytes will be received to.
+ * @return Returns 1 if receiving was successful, -1 otherwise.
+ * @note Returns -1 if internal problems with MPI related functions happend.
  */
 int channel_receive_rma_spsc_buf(MPI_Channel *ch, void *data);
 
 /**
- * @brief Peeks at the channel and signals if messages can be sent (sender calls) or received (receiver calls)
- * 
- * @param[in] ch Pointer to a MPI_Channel allocated with channel_alloc_rma_spsc_buf                 
- * 
- * @return Returns the current channel capacity if sender calls or the number of messages which can be received if receiver calls, 
- * -1 otherwise
- * 
- * @note Returns -1 if internal problems with MPI related functions happend (MPI_Win_lock(), etc.)
+ * @brief Peeks at the channel and signals if messages can be sent (sender process calls) or received (receiver process
+ * calls).
+ * @param[in] ch Pointer to a MPI_Channel of type RMA SPSC BUF.                 
+ * @return Returns the current number of elements which can be sent if the sender process calls or the number of elemets
+ * which can be received if the receiver process calls.
+ * @note Returns -1 if internal problems with MPI related functions happen.
  */
 int channel_peek_rma_spsc_buf(MPI_Channel *ch);
 
 /**
- * @brief Deallocates the channel and all allocated memory
- * 
- * @param[in] ch Pointer to a MPI_Channel allocated with channel_alloc_rma_spsc_buf 
- *                 
+ * @brief Deallocates the channel and all allocated members.
+ * @param[in] ch Pointer to a MPI_Channel of type RMA MPSC BUF.                            
  * @return Returns 1 since deallocation is always successfull
  */
 int channel_free_rma_spsc_buf(MPI_Channel *ch);

@@ -14,51 +14,6 @@
 
 #include "MPI_Channel_Struct.h"
 
-//static unsigned int max_buffer_size = 0;
-
-// set this if buffer for MPI_Bsend was attached
-static int is_attached = 0;
-
-void set_attached() {
-    is_attached = 1;
-}
-
-int get_attached() {
-    return is_attached;
-}
-
-/*
-unsigned int get_max_buffer_size() {
-    return max_buffer_size;
-}
-*/
-/*
-void add_max_buffer_size(unsigned int size) {
-    max_buffer_size += size;
-}
-
-void sub_max_buffer_size(unsigned int size) {
-    max_buffer_size -= size;
-}
-*/
-
-
-
-int get_max_tag() {
-
-    int flag;
-    int *attr_tag_ub;
-
-    MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, &attr_tag_ub, &flag);
-    if (flag) {
-        return *attr_tag_ub;
-    }
-    else {
-        fprintf(stderr, "%s", "Error in get_max_tag(...): Maximal tag could not be retrieved\n");
-        return -1;
-    }
-}
-
 int append_buffer(int to_append)
 {
     // Get the size and address of the old buffer
@@ -155,7 +110,6 @@ int append_buffer(int to_append)
 
 int shrink_buffer(int to_shrink)
 {
-
     // Get the size and address of the old buffer
     int size_old;
     void *buffer_old;

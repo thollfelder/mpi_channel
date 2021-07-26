@@ -1,26 +1,18 @@
 /**
  * @file PT2PT_MPMC_BUF.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief 
+ * @brief Implementation of PT2PT MPMC BUF Channels
  * @version 1.0
  * @date 2021-06-13
- * 
- * 
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  */
 
 #include "PT2PT_MPMC_BUF.h"
 
-// TODO:
-// Channel arbeitet anders als MPMC SYNC:
-// Während bei der synchronen Variante sich ein Sender einen passenden Empfänger sucht
-// wird bei der gepufferten Variante je nach Erhalt der Acknowledgment-Nachrichten jedem Empfänger abwechselnd Daten gesendet
-// Konsequenz: Werden von 2 Sendern genau 3 Nachrichten versendet und genau 2 Empfänger empfangen 3 Nachrichten kann Empfänger 1
-// eine Nachricht zu viel und Empfänger 2 eine Nachricht zu wenig bekommen
-
 MPI_Channel *channel_alloc_pt2pt_mpmc_buf(MPI_Channel *ch)
 {
     // Store type of channel
-    ch->type = PT2PT_MPMC;
+    ch->chan_type = MPMC;
 
     // Update channel capacity to (a multiple of) receiver_count
     if (ch->capacity % ch->receiver_count != 0)
@@ -56,7 +48,8 @@ MPI_Channel *channel_alloc_pt2pt_mpmc_buf(MPI_Channel *ch)
     ch->idx_last_rank = ch->my_rank % ch->sender_count;
 
     // Adjust buffer depending on the rank
-    if (append_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity) != 1)
+    if (append_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * 
+    ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity) != 1)
     {
         ERROR("Error in append_buffer()\n");
         free(ch->receiver_ranks);
@@ -75,7 +68,8 @@ MPI_Channel *channel_alloc_pt2pt_mpmc_buf(MPI_Channel *ch)
     if (MPI_Comm_dup(ch->comm, &ch->comm) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Comm_dup(): Fatal Error\n");
-        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
+        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * 
+        ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
         free(ch->receiver_ranks);
         free(ch->sender_ranks);
         free(ch->receiver_buffered_items);
@@ -89,7 +83,8 @@ MPI_Channel *channel_alloc_pt2pt_mpmc_buf(MPI_Channel *ch)
     if (channel_alloc_assert_success(comm, 0) != 1)
     {
         ERROR("Error in finalizing channel allocation: At least one process failed\n");
-        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
+        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * 
+        ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
         free(ch->receiver_ranks);
         free(ch->sender_ranks);
         free(ch->receiver_buffered_items);
@@ -124,7 +119,8 @@ int channel_send_pt2pt_mpmc_buf(MPI_Channel *ch, void *data)
         while (ch->flag)
         {
             // Receive acknowledgement message from receiver
-            if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) 
+            != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Recv(): Acknowledgment message could not be received\n");
                 return -1;
@@ -134,7 +130,8 @@ int channel_send_pt2pt_mpmc_buf(MPI_Channel *ch, void *data)
             ch->receiver_buffered_items[ch->idx_last_rank]--;
 
             // Iprobe for more acknowledgment messages
-            if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) 
+            != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Iprobe\n");
                 return -1;
@@ -145,7 +142,8 @@ int channel_send_pt2pt_mpmc_buf(MPI_Channel *ch, void *data)
         if (ch->receiver_buffered_items[ch->idx_last_rank] < ch->loc_capacity)
         {
             // Send data to receiver with buffered send
-            if (MPI_Bsend(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm) != MPI_SUCCESS)
+            if (MPI_Bsend(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm) 
+            != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Bsend()\n");
                 return -1;
@@ -187,14 +185,15 @@ int channel_receive_pt2pt_mpmc_buf(MPI_Channel *ch, void *data)
         if (ch->flag)
         {
             // Call blocking receive
-            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm, &ch->status) != MPI_SUCCESS)
+            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm, &ch->status) 
+            != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Recv()\n");
                 return -1;
             }
 
             // Send acknowledgement message to source rank of data message
-            if (MPI_Bsend(NULL, 0, MPI_BYTE, ch->status.MPI_SOURCE, 0, ch->comm) != MPI_SUCCESS)
+            if (MPI_Bsend(NULL, 0, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Bsend(): Acknowledgement message could not be sent. Channel buffer could be invalid\n");
                 return -1;
@@ -226,7 +225,8 @@ int channel_peek_pt2pt_mpmc_buf(MPI_Channel *ch)
             }
 
             // Check for incoming acknowledgement messages from receiver
-            if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+            if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) 
+            != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Iprobe\n");
                 return -1;
@@ -235,7 +235,8 @@ int channel_peek_pt2pt_mpmc_buf(MPI_Channel *ch)
             while (ch->flag)
             {
                 // Receive acknowledgement messages from receiver
-                if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+                if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) 
+                != MPI_SUCCESS)
                 {
                     ERROR("Error in MPI_Recv(): Ack messages could not be received\n");
                     return -1;
@@ -245,7 +246,8 @@ int channel_peek_pt2pt_mpmc_buf(MPI_Channel *ch)
                 ch->receiver_buffered_items[ch->idx_last_rank]--;
 
                 // Check for more incoming acknowledgement messages from receiver
-                if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+                if (MPI_Iprobe(ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, &ch->flag, MPI_STATUS_IGNORE) 
+                != MPI_SUCCESS)
                 {
                     ERROR("Error in MPI_Iprobe\n");
                     return -1;
@@ -281,7 +283,6 @@ int channel_peek_pt2pt_mpmc_buf(MPI_Channel *ch)
     }
 }
 
-// TODO: Usage hint: Only call channelfree when all messages have been received or sent!
 int channel_free_pt2pt_mpmc_buf(MPI_Channel *ch)
 {
     // Check if all messages have been sent and received
@@ -306,7 +307,8 @@ int channel_free_pt2pt_mpmc_buf(MPI_Channel *ch)
                 }   
 
                 // Receive acknowledgement messages from receiver
-                if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
+                if (MPI_Recv(NULL, 0, MPI_BYTE, ch->receiver_ranks[ch->idx_last_rank], 0, ch->comm, MPI_STATUS_IGNORE) 
+                != MPI_SUCCESS)
                 {
                     ERROR("Error in MPI_Recv(): Acknowledgements could not be received\n")
                     return -1;
@@ -332,7 +334,8 @@ int channel_free_pt2pt_mpmc_buf(MPI_Channel *ch)
     MPI_Comm_free(&ch->comm);
 
     // Adjust buffer depending on the rank
-    int error = shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : ch->receiver_count * ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
+    int error = shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : 
+    ch->receiver_count * ((int) ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
 
     // Deallocate channel
     free(ch);

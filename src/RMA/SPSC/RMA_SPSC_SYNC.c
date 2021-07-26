@@ -1,20 +1,10 @@
 /**
  * @file RMA_SPSC_SYNC.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief Implementation of RMA SPSC Synchronous Channel
- * @version 0.1
+ * @brief Implementation of RMA SPSC SYNC Channel
+ * @version 1.0
  * @date 2021-03-03
- * 
- * @copyright Copyright (c) 2021
- * 
- * 
- * 
- * Grundidee:
- * Da genau zwei Prozesse miteinander kommunizieren sollen, liegt es nahe, zur Synchronisation MPI_Win_fence() zu verwenden.
- * Beide Prozesse müssen werden mit dem ersten MPI_Win_fence synchronisiert, der Producer kann die Daten senden und das 
- * zweite MPI_Win_fence.
- * 
- * 
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  */
 
 #include "RMA_SPSC_SYNC.h"
@@ -22,7 +12,7 @@
 MPI_Channel *channel_alloc_rma_spsc_sync(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_SPSC;
+    ch->chan_type = SPSC;
 
     // The consumer needs to allocate space for the local window
     if (ch->is_receiver)
@@ -103,7 +93,6 @@ MPI_Channel *channel_alloc_rma_spsc_sync(MPI_Channel *ch)
 
 int channel_send_rma_spsc_sync(MPI_Channel *ch, void *data)
 {
-    // TODO: Check impact of assertions
     // Start RMA access epoch
     if (MPI_Win_fence(MPI_MODE_NOSTORE | MPI_MODE_NOPUT | MPI_MODE_NOPRECEDE, ch->win) != MPI_SUCCESS)
     {
@@ -126,7 +115,6 @@ int channel_send_rma_spsc_sync(MPI_Channel *ch, void *data)
 
 int channel_receive_rma_spsc_sync(MPI_Channel *ch, void *data)
 {
-    // TODO: Check for correct assertions
     // Start RMA access epoch
     if (MPI_Win_fence(MPI_MODE_NOSTORE | MPI_MODE_NOPRECEDE, ch->win) != MPI_SUCCESS)
     {
@@ -143,7 +131,6 @@ int channel_receive_rma_spsc_sync(MPI_Channel *ch, void *data)
         return -1;
     }
 
-    // TODO: Can it be optimized?
     // Copy item from win_lmem to passed data buffer
     memcpy(data, ch->win_lmem, ch->data_size);
 

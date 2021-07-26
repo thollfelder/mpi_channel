@@ -2,19 +2,15 @@
  * @file RMA_MPMC_SYNC.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
  * @brief Implementation of RMA MPMC Synchronous Channel
- * @version 0.1
+ * @version 1.0
  * @date 2021-05-15
- * @copyright CC BY 4.0
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  * 
- * 
- * Implementierungseigenschaften:
- * - Synchroner Datenaustausch zwischen einem Receiver und mehreren Sendern
- * - Faire Kommunikation: Sender können nicht verhungern
  * 
  * Layout of the local memory of every process window:
- * Sender:                  | SV1 | SV2 | NEXT_SENDER
- * Receiver:                | SV1 | SV2 | NEXT_RECEIVER | DATA
- * Intermediator Receiver:  | SV1 | SV2 | NEXT_RECEIVER | DATA | CURRENT_SENDER | LATEST_SENDER | CURRENT_RECEIVER | LATEST_RECEIVER
+ * Sender:                 | SPIN_1 | SPIN_2 | NEXT_SENDER |
+ * Receiver:               | SPIN_1 | SPIN_2 | NEXT_RECEIVER | DATA |
+ * Intermediate Receiver:  | SPIN_1 | SPIN_2 | NEXT_RECEIVER | DATA | CURRENT_SENDER | LATEST_SENDER | CURRENT_RECEIVER | LATEST_RECEIVER |
  * 
  */
 
@@ -24,10 +20,14 @@
 #define SPIN_2 1
 #define NEXT_RANK 2
 
+// Used for MPI calls
+const int rma_mpmc_sync_minus_one = -1;
+
+
 MPI_Channel *channel_alloc_rma_mpmc_sync(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_MPMC;
+    ch->chan_type = MPMC;
 
     // Create backup in case of failing MPI_Comm_dup
     MPI_Comm comm = ch->comm;
@@ -142,7 +142,7 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     int latest_rank;
     int next_rank;
 
-    // Used to fetch current receiver at intermediator receiver
+    // Used to fetch current receiver at ntermediate receiver
     int current_receiver; 
 
     // Int pointer for indexing local spinning and next_rank variables
@@ -154,13 +154,6 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     int latest_sender = 4 * sizeof(int) + ch->data_size; // latest sender of receiver 0
     int cur_receiver = 5 * sizeof(int) + ch->data_size; // current receiver of receiver 0
 
-    // Used for replacing 
-    int minus_one = -1;
-
-    // SENDER: | SV1 | SV2 | NEXT_SENDER
-    // RECEIVER: | SV1 | SV2 | NEXT_RECEIVER | DATA
-    // RECEIVER0: | SV1 | SV2 | NEXT_RECEIVER | DATA | CURRENT_SENDER | LATEST_SENDER | CURRENT_RECEIVER | LATEST_RECEIVER
-
     // Reset spinning and next rank variable to -1
     // Can be done safely since at this point no other process will access local window memory
     lmem[SPIN_1] = -1;
@@ -170,11 +163,8 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     // Lock window of all procs of communicator (lock type is shared)
     MPI_Win_lock_all(0, ch->win);
 
-    // Replace latest sender rank at intermediator receiver with rank of calling sender
+    // Replace latest sender rank at intermediate receiver with rank of calling sender
     MPI_Fetch_and_op(&ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, MPI_REPLACE, ch->win);
-
-    // DEBUG
-    //printf("Latest Sender: %d\n", latest_sender);
 
     // If latest rank is the rank of another sender, this sender comes before calling sender
     if (latest_rank != -1)
@@ -190,18 +180,17 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     }
     // At this point the calling sender has the sender lock
 
-    // TODO: Replace atomically current sender rank at intermediator receiver  with own rank; receiver then knows the origin of the data
+    // Replace atomically current sender rank at intermediate receiver with own rank; receiver then knows the origin of the data
     MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
 
-    // Needs barrier to ensure that updating current sender rank is finished before reading current receiver rank
+    // Needs memory barrier to ensure that updating current sender rank is finished before reading current receiver rank
     // Otherwise it could lead to deadlock
     MPI_Win_flush(ch->receiver_ranks[0], ch->win);
 
-    // TODO: Check if a receiver is waiting
+    // Check if a receiver is already waiting
     MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_receiver, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
 
     // If a receiver is waiting continue, otherwise calling sender needs to wait for a receiver
-    // TODO: Why is if leading to an error (results in current_receiver == -1)
     while (current_receiver == -1) {
         do
         {
@@ -211,7 +200,7 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
         // Get receiver rank
         MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_receiver, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
     }
-    // At this point a receiver has registered at intermediator receiver
+    // At this point a receiver has registered at intermediate receiver
 
     // Send data to the current receiver
     MPI_Put(data, ch->data_size, MPI_BYTE, current_receiver, data_offset, ch->data_size, MPI_BYTE, ch->win);
@@ -219,12 +208,9 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     // Force completion of data transfer before signaling completion on receiver side
     MPI_Win_flush(current_receiver, ch->win);
 
-    // Replace atomically current sender rank at receiver with own rank; receiver then knows the origin of the data
-    //MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], 0, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
-
     // Reset current receiver and sender ranks to -1; ensures that next sender and receiver wait if no matching process registered
-    MPI_Accumulate(&minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
-    MPI_Accumulate(&minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    MPI_Accumulate(&rma_mpmc_sync_minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    MPI_Accumulate(&rma_mpmc_sync_minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
 
     // Wake up receiver
     MPI_Accumulate(&ch->my_rank, 1, MPI_INT, current_receiver, sizeof(int) * SPIN_2, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
@@ -236,7 +222,7 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     {
         // Compare the latest rank at the receiver with own rank; if they are the same exchange latest rank with -1
         // signaling that no sender currently has the lock
-        MPI_Compare_and_swap(&minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, ch->win);
+        MPI_Compare_and_swap(&rma_mpmc_sync_minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, ch->win);
 
         // If latest rank at receiver is equal to own rank, no other sender added themself to the lock list
         if (latest_rank == ch->my_rank)
@@ -283,13 +269,6 @@ int channel_receive_rma_mpmc_sync(MPI_Channel *ch, void *data)
     int latest_receiver = 6 * sizeof(int) + ch->data_size; // latest receiver of receiver 0
     int cur_receiver = 5 * sizeof(int) + ch->data_size; // current receiver of receiver 0
 
-    // Used for replacing 
-    int minus_one = -1;
-
-    // SENDER: | SV1 | SV2 | NEXT_SENDER
-    // RECEIVER: | SV1 | SV2 | NEXT_RECEIVER | DATA
-    // RECEIVER0: | SV1 | SV2 | NEXT_RECEIVER | DATA | CURRENT_SENDER | LATEST_SENDER | CURRENT_RECEIVER | LATEST_RECEIVER
-
     // Reset spinning and next rank variable to -1
     // Can be done safely since at this point no other process will access local window memory
     lmem[SPIN_1] = -1;
@@ -301,9 +280,6 @@ int channel_receive_rma_mpmc_sync(MPI_Channel *ch, void *data)
 
     // Replace latest receiver rank at intermediator receiver with rank of calling receiver
     MPI_Fetch_and_op(&ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, MPI_REPLACE, ch->win);
-
-    // DEBUG
-    //printf("Latest Receiver: %d\n", latest_receiver);
 
     // If latest rank is the rank of another receiver, this receiver comes before the calling receiver
     if (latest_rank != -1)
@@ -319,14 +295,14 @@ int channel_receive_rma_mpmc_sync(MPI_Channel *ch, void *data)
     }
     // At this point the calling receiver has the receiver lock
 
-    // TODO: Replace atomically current receiver rank at intermediator receiver with own rank; sender then knows the target of the data
+    // Replace atomically current receiver rank at intermediator receiver with own rank; sender then knows the target of the data
     MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
 
     // Needs barrier to ensure that updating current receiver rank is finished before reading current sender rank
     // Otherwise it could lead to deadlock
     MPI_Win_flush(ch->receiver_ranks[0], ch->win);
 
-    // TODO: Check if a sender is waiting
+    // Check if a sender is waiting
     MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_sender, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
 
     // If a sender is waiting for a receiver
@@ -344,24 +320,17 @@ int channel_receive_rma_mpmc_sync(MPI_Channel *ch, void *data)
     
     // At this point the current sender finished sending the data
 
-    // Get receiver rank
-    // Needed?
-    //MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_sender, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
-
     // Copy data to data buffer
     memcpy(data, lmem+3, ch->data_size);
 
     // At this point the receiver received the data and a synchronization between current sender and receiver took place
     
-    // Reset current receiver to -1 before waking up the next receiver
-    //MPI_Accumulate(&minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
-
     // Check if another receiver registered at local next rank variable
     if (lmem[NEXT_RANK] == -1)
     {
         // Compare the latest receiver rank at the intermediator receiver with own rank; if they are the same exchange latest rank with -1
         // signaling that no receiver currently has the lock
-        MPI_Compare_and_swap(&minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, ch->win);
+        MPI_Compare_and_swap(&rma_mpmc_sync_minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, ch->win);
 
         // If latest rank at intermediator receiver is equal to own rank, no other receiver added themself to the lock list
         if (latest_rank == ch->my_rank)

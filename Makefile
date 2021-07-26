@@ -15,8 +15,8 @@ LIBS = -lm
 
 # define the C source files
 # SRCS = um.c
-SRCS = MPI_Channel_Test_TP_CSV.c \
-	src/MPI_Channel.c src/MPI_Channel_Struct.c \
+SRCS = MPI_Channel_debug.c \
+	src/MPI_Channel.c src/MPI_Channel_Struct.c\
 	src/PT2PT/SPSC/PT2PT_SPSC_SYNC.c \
  	src/PT2PT/SPSC/PT2PT_SPSC_BUF.c \
 	src/PT2PT/MPSC/PT2PT_MPSC_SYNC.c \

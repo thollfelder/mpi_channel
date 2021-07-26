@@ -4,7 +4,7 @@
  * @brief Implementation of RMA MPSC Buffered Channel
  * @version 1.0
  * @date 2021-05-25
- * @copyright CC BY 4.0
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  * 
  */
 
@@ -36,7 +36,7 @@ const int rma_mpsc_buf_null = 0;
 MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_MPSC;
+    ch->chan_type = MPSC;
 
    // Create backup in case of failing MPI_Comm_dup
     MPI_Comm comm = ch->comm;
@@ -80,8 +80,10 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
     }
     else
     {
-        // Allocate memory for two integers used as read and write index and capacity + 1 times datasize and integer in bytes
-        if (MPI_Alloc_mem(INDICES_SIZE + (ch->capacity+1)*(ch->data_size + sizeof(int)), MPI_INFO_NULL, &ch->win_lmem) != MPI_SUCCESS)
+        // Allocate memory for two integers used as read and write index and capacity + 1 times datasize + sizeof(int) 
+        // in bytes
+        if (MPI_Alloc_mem(INDICES_SIZE + (ch->capacity+1)*(ch->data_size + sizeof(int)), MPI_INFO_NULL, &ch->win_lmem) 
+        != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Alloc_mem()\n");
             free(ch);
@@ -90,7 +92,8 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
         }
 
         // Create a window
-        if (MPI_Win_create(ch->win_lmem, INDICES_SIZE + (ch->capacity+1)*(ch->data_size + sizeof(int)), 1, MPI_INFO_NULL, ch->comm, &ch->win) != MPI_SUCCESS)
+        if (MPI_Win_create(ch->win_lmem, INDICES_SIZE + (ch->capacity+1)*(ch->data_size + sizeof(int)), 1, MPI_INFO_NULL, 
+        ch->comm, &ch->win) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Win_create()\n");
             MPI_Free_mem(ch->win_lmem);
@@ -183,7 +186,8 @@ int channel_send_rma_mpsc_buf(MPI_Channel *ch, void *data)
     if (tail == -1) 
     {
         // Tail stored -1; new node was the first in the linked list; replace head and let it point to newly created node
-        if (MPI_Accumulate(&node_adress, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+        if (MPI_Accumulate(&node_adress, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_REPLACE, 
+        ch->win) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Accumulate()\n");
             return -1;    
@@ -192,7 +196,8 @@ int channel_send_rma_mpsc_buf(MPI_Channel *ch, void *data)
      else 
      {
          // Tail stored the adress of another node; exchange the next variable of that node with the adress of the newly created node
-        if (MPI_Accumulate(&node_adress,  sizeof(int), MPI_BYTE, tail/(ch->capacity+1), INDICES_SIZE + (tail % (ch->capacity+1)) * node_size, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+        if (MPI_Accumulate(&node_adress,  sizeof(int), MPI_BYTE, tail/(ch->capacity+1), INDICES_SIZE + 
+        (tail % (ch->capacity+1)) * node_size, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Accumulate()\n");
             return -1;    
@@ -240,7 +245,8 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
 
     // Atomic load head of the local memory; needs to be done this way since accessing local memory with 
     // a local load and MPI_Win_sync may lead to erroneous values
-    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &head, 1, MPI_INT, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &head, 1, MPI_INT, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_NO_OP, 
+    ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Get_accumulate()\n");
         return -1;    
@@ -259,14 +265,16 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
     int displacement = INDICES_SIZE + next_read_idx * (ch->data_size + sizeof(int));
 
     // Load data ...
-    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, data, ch->data_size, MPI_BYTE, next_rank, displacement + sizeof(int), ch->data_size, MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, data, ch->data_size, MPI_BYTE, next_rank, displacement + sizeof(int), 
+    ch->data_size, MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Get_accumulate()\n");
         return -1;    
     }
     
     // and adress of next node
-    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, ch->data_size, MPI_BYTE, next_rank, displacement, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, ch->data_size, MPI_BYTE, next_rank, displacement, sizeof(int), 
+    MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Get_accumulate()\n");
         return -1;    
@@ -286,7 +294,8 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
         int cas_result;
 
         // Exchange tail with -1 only if the list consists of one node i.e if head and tail contain the same node adress; 
-        if (MPI_Compare_and_swap(&rma_mpsc_buf_minus_one, &head, &cas_result, MPI_INT, ch->receiver_ranks[0], TAIL, ch->win) != MPI_SUCCESS)
+        if (MPI_Compare_and_swap(&rma_mpsc_buf_minus_one, &head, &cas_result, MPI_INT, ch->receiver_ranks[0], TAIL, 
+        ch->win) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Compare_and_swap()\n");
             return -1;    
@@ -298,7 +307,8 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
             // Repeat until the next adress of the current node has been updated by the process of the newly inserted node
             do 
             {
-                if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, 1, MPI_INT, next_rank, displacement, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS) 
+                if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, 1, MPI_INT, next_rank, displacement, sizeof(int), 
+                MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS) 
                 {
                     ERROR("Error in MPI_Get_accumulate()\n");
                     return -1;          
@@ -323,7 +333,8 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
             // At this point tail has been exchanged with -1; if a producer now inserts a new node it receives -1 as tail 
             // and changes head to the adress of the new node; because of this the following CAS only exchanges head 
             // with -1 if head is still containing the adress of the node the consumer received the data from
-            if (MPI_Compare_and_swap(&rma_mpsc_buf_minus_one, &head, &cas_result, MPI_INT, ch->receiver_ranks[0], HEAD, ch->win) != MPI_SUCCESS)
+            if (MPI_Compare_and_swap(&rma_mpsc_buf_minus_one, &head, &cas_result, MPI_INT, ch->receiver_ranks[0], HEAD, 
+            ch->win) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Compare_and_swap()\n");
                 return -1;    
@@ -360,7 +371,8 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
 
 int channel_peek_rma_mpsc_buf(MPI_Channel *ch)
 {
-    // Stores integer reference to local window memory usted to access head (if consumer calls) or read and write indices (if sender calls)
+    // Stores integer reference to local window memory used to access head (if consumer calls) or read and write 
+    // indices (if sender calls)
     int *lmem = ch->win_lmem;
 
     // Lock local window with shared lock
@@ -453,8 +465,7 @@ int channel_free_rma_mpsc_buf(MPI_Channel *ch)
 
 /*
  * Test Version: Implementation with MPI_SHARED_LOCK
- * - Probleme: Versuche zeigen, dass keine Fairness herrscht und bei zwei Sendern 1 Sender verhungern kann
- * - Außerdem ist diese Version, in der solange iterativ gelockt wird, bis Erfolg, langsamer
+ * - Probleme: Es können genau zwei Prozesse gleichzeitig auf die Daten zugreifen; etwas langsamer als M&S
 */
 /*
 MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)

@@ -29,10 +29,6 @@
  * 
  */
 
-// TODO: Tests, Errorhandling, MPI_Win_flush, Channelbeschreibung, Header, Aufräumen in MPI_Channel.c
-// TODO: Check for global, correct constants
-// TODO: Check for MPI consistent Communication handle
-
 #define SPIN 0
 #define NEXT_RECV 1
 
@@ -53,7 +49,7 @@ const int rma_mpmc_buf_null = 0;
 MPI_Channel *channel_alloc_rma_mpmc_buf(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_MPMC;
+    ch->chan_type = MPMC;
 
    // Create backup in case of failing MPI_Comm_dup
     MPI_Comm comm = ch->comm;
@@ -234,7 +230,6 @@ int channel_send_rma_mpmc_buf(MPI_Channel *ch, void *data)
         // Wake up receiver
         if (tail < -1)
         {
-            // TODO: Correct?
             if (MPI_Accumulate(&ch->my_rank, sizeof(int), MPI_BYTE, -tail -2, SPIN, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Accumulate()\n");
@@ -326,8 +321,6 @@ int channel_receive_rma_mpmc_buf(MPI_Channel *ch, void *data)
     }
     // At this point the calling receiver has the receiver lock
 
-    //printf("Receiver has lock\n");
-
     /*
      * GET DISTRIBUTED LOCK }
      */
@@ -407,8 +400,6 @@ int channel_receive_rma_mpmc_buf(MPI_Channel *ch, void *data)
         return -1;    
     }
 
-    //printf("Receiver got data\n");
-
     // and adress of next node
     if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, ch->data_size, MPI_BYTE, next_rank, displacement, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
     {
@@ -448,20 +439,10 @@ int channel_receive_rma_mpmc_buf(MPI_Channel *ch, void *data)
                     return -1;          
                 }
 
-                /*
-                // Ensure that memory is updated
-                if (MPI_Win_sync(ch->win) != MPI_SUCCESS) 
-                {
-                    ERROR("Error in MPI_Win_sync()\n");
-                    return -1;          
-                }
-                */
-               // TODO:
                 MPI_Win_flush(next_rank, ch->win);
 
             } while (next == -1);
 
-            // TODO:
             // Update head to the adress of the next node
             if (MPI_Accumulate(&next, 1, MPI_INT, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
             {
@@ -485,7 +466,6 @@ int channel_receive_rma_mpmc_buf(MPI_Channel *ch, void *data)
     // Next points to another node
     else 
     {
-        // TODO:
         // Update head to the adress of the next node
         if (MPI_Accumulate(&next, 1, MPI_INT, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
         {
@@ -507,8 +487,6 @@ int channel_receive_rma_mpmc_buf(MPI_Channel *ch, void *data)
     /*
      * RETURN DISTRIBUTED LOCK {
      */
-
-    //printf("Receiver returns lock\n");
 
     // Check if another receiver registered at local next rank variable
     if (lmem[NEXT_RECV] == -1)
@@ -535,7 +513,7 @@ int channel_receive_rma_mpmc_buf(MPI_Channel *ch, void *data)
     // Seems to be faster then MPI_Fetch_and_op
     MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_rank, 1, MPI_INT, ch->my_rank, NEXT_RECV, 1, MPI_INT, MPI_NO_OP, ch->win);
 
-    // TODO: Ensure completion of loading next rank 
+    // Ensure completion of loading next rank 
     MPI_Win_flush(ch->my_rank, ch->win);
 
     // Notify next receiver by updating first spinning variable with a number unlike -1

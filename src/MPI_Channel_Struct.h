@@ -2,22 +2,21 @@
  * @file MPI_Channel_Struct.h
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
  * @brief Header of MPI Channel Struct
- * @version 0.1
+ * @version 1.0
  * @date 2021-01-04
- * 
- * @copyright Copyright (c) 2021
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  * 
  */
 
 #ifndef MPI_CHANNEL_STRUCT_H
 #define MPI_CHANNEL_STRUCT_H
 
-#include "mpi.h"
 #include <malloc.h>
+#include <string.h> /* memset */
+#include "mpi.h"
 
-// Used for memset
-#include <string.h>
-//#include <stdlib.h>
+#ifndef MPI_CHANNEL_DEBUG_MESSAGES
+#define MPI_CHANNEL_DEBUG_MESSAGES
 
 // For debug//error messages
 #define DEBUG(...)\
@@ -38,68 +37,83 @@ printf("Warning in function %s line %d:\n",__FUNCTION__, __LINE__);\
 printf(__VA_ARGS__);\
 }
 
+// Set to 1 or 0 if corresponding output is wished
 #define SHOW_ERROR 1
-#define SHOW_DEBUG 0
+#define SHOW_DEBUG 1
 #define SHOW_WARNING 1
 
+#endif // MPI_CHANNEL_DEBUG_MESSAGES
+
+#ifndef MPI_CHAN_TYPE
+#define MPI_CHAN_TYPE
 typedef enum MPI_Chan_type {
+    SPSC,
+    MPSC,
+    MPMC
+} MPI_Channel_type;
 
+#endif 
+
+#ifndef MPI_COMM_TYPE
+#define MPI_COMM_TYPE
+
+typedef enum MPI_Comm_type {
     PT2PT,
-    RMA,
+    RMA
+} MPI_Communication_type;
 
-    // PT2PT
-    PT2PT_SPSC,
-    PT2PT_MPSC,
-    PT2PT_MPMC,
+#endif 
 
-    // RMA
-    RMA_SPSC,
-    RMA_MPSC,
-    RMA_MPMC,
-
-} MPI_Chan_type;
-
-// TODO: Use union
 typedef struct MPI_Channel{
 
     ////////////////////////**
     // Properties for every type of channel
     ////////////////////////**
 
-    // if channel is unbuffered
-    void*       data;
+    size_t      data_size;              /** Stores size of each data element */
+    int         capacity;               /** Stores capacity e.g. how many elements a channel can store */   
+    int         my_rank;                /** Stores rank of local process */
+    int         is_receiver;            /** Flag which signals if calling process is a receiver process */
+    int         *receiver_ranks;        /** Array storing the ranks of each receiver process */
+    int         receiver_count;         /** Stores the number of receiver processes */
+    int         *sender_ranks;          /** Array storing the ranks of each sender process */
+    int         sender_count;           /** Stores the number of sender processes */
 
-    // size of one element of channel
-    size_t      data_size;
+    MPI_Request req;                    /** Stores Request used for nonblocking MPI calls */
 
-    // stores max capacity of channel 
-    int      capacity;
+    MPI_Channel_type chan_type;         /** Stores the channel type (SPSC, MPSC or MPMC) */
+    MPI_Communication_type comm_type;   /** Stores the communication type (PT2PT or RMA) */
 
-    // Store rank number of local process
-    int         my_rank;        
+    MPI_Comm        comm;               /** Stores shadow comm used as unique communicator context within the channel */ 
+    int             comm_size;          /** Stores the size of the used communicator */
+    
+    MPI_Status      status;             // needed e.g. returning message count when peeking channel
+    int             alloc_failed;       // used to signal to other procs if allocation was successfull    
 
-    // Used to store if process is receiver or sender
-    int         is_receiver;
-    // Stores ranks of receiver 
-    int         *receiver_ranks;
-    // Used to store number of receivers
-    int         receiver_count;
-    // Stores rank of sender 
-    int         *sender_ranks;
-    // Used to store number of sender
-    int         sender_count;
+    /** Function pointers for easier function calling of the various channel implementation */
+    int (*ptr_channel_send)(struct MPI_Channel*, void*);
+    int (*ptr_channel_receive)(struct MPI_Channel*, void*);
+    int (*ptr_channel_peek)(struct MPI_Channel*);
+    int (*ptr_channel_free)(struct MPI_Channel*);
 
-    // Request used for recurring nonblocking mpi calls
-    MPI_Request         req;
+    int         buffered_items;         /** Bookmarks the number of buffered elements at the sender process */
+    int                 flag;           /** Used for MPI_Iprobe() */
 
-    ////////////////////////**
+    int         idx_last_rank;          /** Used for MPSC storing the last rank to receive from */
+
+    // PT2PT MPMC SYNC
+    int             tag;                /** Used to send unique send requests for PT2PT MPMC SYNC channels */
+    int             *requests_sent;     /** Stores integer array to check for sent request messages */
+
+    // PT2PT MPMC BUF
+    int loc_capacity;                   /** Used to store the local capacity for every receiver */
+    int *receiver_buffered_items;       /** Integer array storing the number of buffered elements at each receiver */
+
+
+
     // Properties for PT2PT MPMC SYNC
-    ////////////////////////**   
 
-    // Stores message counter
-    int                 msg_counter;
     // Stores integers to signal if a request message has been sent
-    int                 *requests_sent;
     // Stores MPI_Requests for MPI_Issend
     MPI_Request         *requests;
 
@@ -109,39 +123,15 @@ typedef struct MPI_Channel{
 
     // spsc unbuffered unsynchronized traits
     // Used for buf and sync spsc
-    int         buffered_items;   // stores the number of buffered items at the target rank
 
     // spsc unbuffered unsynchronized traits
     // Used for buf and sync spsc
-    int         *receiver_buffered_items;   // stores the number of buffered items at the target rank
 
     // mpsc sync to store the index of the last sender rank where iterating stopped
-    int         index_last_sender_rank;
-    // TODO: Use this instead
-    int         idx_last_rank;
 
-    // mpmc buffered used to store local cap for every receiver
-    int         loc_capacity;
-
-    int                 flag;
-    int         received;
-
-    // TODO: Attach buffer big enough for multiple channels
-
-    // essential MPI properties
-    int             tag;        // unique tag for each channel
-    MPI_Comm        comm;       // shadow comm used as unique context for each channel 
-    int             comm_size;  // stores size of communicator the channel works with
-    MPI_Status      status;     // needed e.g. returning message count when peeking channel
-    int             alloc_failed; // used to signal to other procs if allocation was successfull            
-
-    // faster function calls, avoids endless if-statements
-    //bool (*send) (void*, void*, size_t);
-    //bool (*receive) (void*, void*, size_t);
-
-    // MPI_Chan_type, _buf and _block
-    //MPI_Chan_traits chan_trait;
-    MPI_Chan_type type;
+    //int         index_last_sender_rank;
+    //int         received;
+    // NOT NEEDED?
 
     // RMA
     MPI_Win     win;
@@ -151,15 +141,10 @@ typedef struct MPI_Channel{
 
     void*       win_lmem;       // Used to store the buffer of the window object
 
+
+
 } MPI_Channel;
 
-int get_tag_from_counter();
-
-unsigned int get_max_buffer_size();
-
-void add_max_buffer_size(unsigned int);
-
-void sub_max_buffer_size(unsigned int);
 
 /**
  * @brief Internal utility function to append the buffer MPI uses in buffered send mode (MPI_Bsend)

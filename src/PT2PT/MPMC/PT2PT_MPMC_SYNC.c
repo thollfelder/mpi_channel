@@ -1,11 +1,10 @@
 /**
  * @file PT2PT_MPMC_SYNC.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief 
- * @version 0.1
+ * @brief Implementation of PT2PT MPMC SYNC channel
+ * @version 1.0
  * @date 2021-04-11
- * 
- * @copyright Copyright (c) 2021
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  * 
  */
 
@@ -14,11 +13,11 @@
 MPI_Channel *channel_alloc_pt2pt_mpmc_sync(MPI_Channel *ch)
 {
     // Store type of channel
-    ch->type = PT2PT_MPMC;
+    ch->chan_type = MPMC;
 
-    // Initialize msg_counter with 0
+    // Initialize tag with 0
     // Used to send send requests with unique number
-    ch->msg_counter = 0;
+    ch->tag = 0;
 
     // Used to start at the last rank of the receiver while sending send requests
     ch->idx_last_rank = 0;
@@ -154,7 +153,7 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
             if (msg_received)
             {
                 // and the message contains the current message number
-                if (msg_number == ch->msg_counter)
+                if (msg_number == ch->tag)
                 {
                     // break out of loop and send this receiver the data
                     matching_message_arrived = 1;
@@ -187,7 +186,7 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
         if (request_flag && (ch->requests_sent[last_rank] != 1))
         {
             // Send send request (message containing message counter and rank as tag) to receiver i
-            if (MPI_Bsend(&ch->msg_counter, 1, MPI_INT, ch->receiver_ranks[last_rank], ch->my_rank, ch->comm) != MPI_SUCCESS)
+            if (MPI_Bsend(&ch->tag, 1, MPI_INT, ch->receiver_ranks[last_rank], ch->my_rank, ch->comm) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Bsend(): Send request could not be sent\n");
                 return -1;
@@ -240,9 +239,9 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
     ch->idx_last_rank = last_rank;
 
     // TODO: Can an overflow result into problems? No
-    // TODO: What happends if one receiver answers with overflowed msg_counter
+    // TODO: What happends if one receiver answers with overflowed tag
     // Increment message counter
-    ch->msg_counter++;
+    ch->tag++;
 
     // Wait for sending data with MPI_Issend to finish
     if (MPI_Wait(&ch->req, MPI_STATUS_IGNORE) != MPI_SUCCESS)

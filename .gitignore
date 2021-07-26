@@ -2,10 +2,13 @@
 *.o
 
 # Ignore those folders
-.vscode/
-batch/
-html/
-measurements/
-out/
-thrash/
-Tests/
+.vscode
+batch
+html
+measurements
+out
+thrash
+Tests
+MPSC/old
+MPSC/measurements
+src/Queue

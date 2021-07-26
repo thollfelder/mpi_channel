@@ -1,29 +1,21 @@
 /**
  * @file RMA_SPSC_BUF.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief Implementation of RMA SPSC Buffered Channel
- * @version 0.1
+ * @brief Implementation of RMA SPSC BUF Channel
+ * @version 1.0
  * @date 2021-02-19
- * @copyright CC BY 4.0
- * 
- * Implementierung erlaubt das gleichzeitige, also nichtblockierende/waitfree, Senden bzw. Empfangen von Daten, solange mehr als 1 Element
- * im Puffer gespeichert ist.
- * Producer aktualisiert Write-Index lokal und bei Receiver
- * Receiver aktualisiert Read-Index lokal und bei Sender
- * 
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  */
 
 #include "RMA_SPSC_BUF.h"
 
-#define DATA_DISP 2 * sizeof(int)
-
 // Constant offset to data segment
-const int data_disp = 2 * sizeof(int);
+#define DATA_DISP 2 * sizeof(int)
 
 MPI_Channel *channel_alloc_rma_spsc_buf(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_SPSC;
+    ch->chan_type = SPSC;
 
    // Create backup in case of failing MPI_Comm_dup
     MPI_Comm comm = ch->comm;
@@ -45,7 +37,8 @@ MPI_Channel *channel_alloc_rma_spsc_buf(MPI_Channel *ch)
     {
         // Allocate memory for two integers and capacity * data_size in byte
         // Needs to allocate one more block of memory with size data_size to let ring buffer with size 1 work
-        if (MPI_Alloc_mem(2 * sizeof(int) + (ch->capacity+1) * ch->data_size, MPI_INFO_NULL, &ch->win_lmem) != MPI_SUCCESS)
+        if (MPI_Alloc_mem(2 * sizeof(int) + (ch->capacity+1) * ch->data_size, MPI_INFO_NULL, &ch->win_lmem) != 
+        MPI_SUCCESS)
         {
             ERROR("Error in MPI_Alloc_mem()\n");
             free(ch);
@@ -54,7 +47,8 @@ MPI_Channel *channel_alloc_rma_spsc_buf(MPI_Channel *ch)
         }
 
         // Create window object with allocated window memory
-        if (MPI_Win_create(ch->win_lmem, 2 * sizeof(int) + (ch->capacity+1) * ch->data_size, 1, MPI_INFO_NULL, ch->comm, &ch->win) != MPI_SUCCESS)
+        if (MPI_Win_create(ch->win_lmem, 2 * sizeof(int) + (ch->capacity+1) * ch->data_size, 1, MPI_INFO_NULL, ch->comm,
+         &ch->win) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Win_create()\n");
             MPI_Free_mem(ch->win_lmem);
@@ -127,12 +121,12 @@ int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data)
     {
         // Check MPI Memory Model for further information
         // Ensure that memory is updated
-        // TODO: Why no problems here?
         MPI_Win_sync(ch->win);
     }
 
     // Send data to the target window at the base address + write position * data size
-    MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], data_disp + index[1] * ch->data_size, ch->data_size, MPI_BYTE, ch->win);
+    MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], DATA_DISP + index[1] * ch->data_size, ch->data_size, 
+    MPI_BYTE, ch->win);
 
     // Ensure completion of data transfer with MPI_Put
     // Avoids updated write index but not completed data transfer
@@ -144,7 +138,8 @@ int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data)
 
     // Send updated write index
     // Not as fast as put but must be atomic; faster than MPI_Fetch_and_op 
-    MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE,
+     ch->win);
 
     // Returns when MPI_Puts completed
     if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
@@ -176,7 +171,7 @@ int channel_receive_rma_spsc_buf(MPI_Channel *ch, void *data)
     }
     
     // Copy data to user buffer
-    memcpy(data, (char *)index + data_disp + ch->data_size * index[0], ch->data_size);
+    memcpy(data, (char *)index + DATA_DISP + ch->data_size * index[0], ch->data_size);
     
     // Update read index depending on its position (0 if end of queue, +1 otherwise)
     *index == ch->capacity ? *index = 0 : (*index)++;

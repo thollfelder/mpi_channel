@@ -1,11 +1,20 @@
+/**
+ * @file PT2PT_MPSC_BUF.c
+ * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
+ * @brief Implementation of PT2PT MPSC BUF Channel
+ * @version 1.0
+ * @date 2021-04-13
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
+ * 
+ */
+
 #include "PT2PT_MPSC_BUF.h"
 
 MPI_Channel *channel_alloc_pt2pt_mpsc_buf(MPI_Channel *ch)
 {
     // Store type of channel
-    ch->type = PT2PT_MPSC;
+    ch->chan_type = MPSC;
 
-    // TODO: Only needs sender
     // Initialize buffered_items with 0
     ch->buffered_items = 0;
 
@@ -14,7 +23,8 @@ MPI_Channel *channel_alloc_pt2pt_mpsc_buf(MPI_Channel *ch)
     ch->idx_last_rank = 0;
 
     // Adjust buffer depending on the rank
-    if (append_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : (int) (ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity) != 1)
+    if (append_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : (int) (ch->data_size 
+    + MPI_BSEND_OVERHEAD) * ch->capacity) != 1)
     {
         ERROR("Error in append_buffer()\n");
         free(ch->receiver_ranks);
@@ -32,7 +42,8 @@ MPI_Channel *channel_alloc_pt2pt_mpsc_buf(MPI_Channel *ch)
     if (MPI_Comm_dup(ch->comm, &ch->comm) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Comm_dup(): Fatal Error\n");
-        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : (int) (ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
+        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : (int) (ch->data_size 
+        + MPI_BSEND_OVERHEAD) * ch->capacity);
         free(ch->receiver_ranks);
         free(ch->sender_ranks);
         channel_alloc_assert_success(comm, 1);
@@ -45,7 +56,8 @@ MPI_Channel *channel_alloc_pt2pt_mpsc_buf(MPI_Channel *ch)
     if (channel_alloc_assert_success(comm, 0) != 1)
     {
         ERROR("Error in finalizing channel allocation: At least one process failed\n");
-        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : (int) (ch->data_size + MPI_BSEND_OVERHEAD) * ch->capacity);
+        shrink_buffer(ch->is_receiver ? MPI_BSEND_OVERHEAD * ch->capacity * ch->sender_count : (int) (ch->data_size + 
+        MPI_BSEND_OVERHEAD) * ch->capacity);
         free(ch->receiver_ranks);
         free(ch->sender_ranks);
         free(ch);
@@ -121,7 +133,6 @@ int channel_send_pt2pt_mpsc_buf(MPI_Channel *ch, void *data)
     return 1;
 }
 
-// TODO: Check if local variable make execution faster
 int channel_receive_pt2pt_mpsc_buf(MPI_Channel *ch, void *data)
 {
     // Loop until one message can be received
@@ -144,16 +155,18 @@ int channel_receive_pt2pt_mpsc_buf(MPI_Channel *ch, void *data)
         if (ch->flag)
         {
             // Call blocking receive
-            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm, &ch->status) != MPI_SUCCESS)
+            if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm, 
+            MPI_STATUS_IGNORE) != MPI_SUCCESS)
             {
                 ERROR("Error in MPI_Recv()\n");
                 return -1;
             }
 
             // Send acknowledgement message to source rank of data message
-            if (MPI_Bsend(NULL, 0, MPI_BYTE, ch->status.MPI_SOURCE, 0, ch->comm) != MPI_SUCCESS)
+            if (MPI_Bsend(NULL, 0, MPI_BYTE, ch->sender_ranks[ch->idx_last_rank], 0, ch->comm) != MPI_SUCCESS)
             {
-                ERROR("Error in MPI_Bsend(): Acknowledgement message could not be sent. Capacity of channel buffer could be invalid\n");
+                ERROR("Error in MPI_Bsend(): Acknowledgement message could not be sent. Capacity of channel buffer"
+                " could be invalid\n");
                 return -1;
             }
 
@@ -217,7 +230,6 @@ int channel_peek_pt2pt_mpsc_buf(MPI_Channel *ch)
     }
 }
 
-// TODO: Usage hint: Only call channelfree when all messages have been received or sent!
 int channel_free_pt2pt_mpsc_buf(MPI_Channel *ch) 
 {
     // Check if all messages have been sent and received

@@ -1,42 +1,10 @@
 /**
  * @file RMA_MPSC_SYNC.c
  * @author Toni Hollfelder (Toni.Hollfelder@uni-bayreuth.de)
- * @brief Implementation of RMA MPSC Synchronous Channel
+ * @brief Implementation of RMA MPSC SYNC Channel
  * @version 1.0
  * @date 2021-05-12
- * @copyright CC BY 4.0
- * 
- * The RMA MPSC SYNC Channel works as follows:
- * 
- * The main idea behind this MPI RMA implementation is to guarantee a fair and starvation-free channel with synchronous data exchange between one sender (out of multiple) 
- * and exactly one receiver. It uses a distributed lock (similar to a single linked list) for all senders to ensure the fairness and starvation-freeness: It is 
- * impossible for one process to starve due to the alternating lock progression. 
- * 
- * When a sender wants to send data over the channel it first needs to register at the distributed lock. This happends through the FAO-Operation where the LATEST_SENDER
- * (initialized with -1) is atomically exchanged with the own rank of the calling sender. When the result is -1 no other sender has registered for the lock meaning that
- * the calling sender has aquired the lock. Otherwise another sender currently has the lock and the calling sender needs to register at the previous lockholder (which
- * rank is stored in LATEST_SENDER). The calling sender can register at the previous lockholder by updating the NEXT_SENDER with the own process rank followed by spinning
- * over its local variable. Since the Fetch-and Op Operation is atomic exactly one sender fetches the current rank stored in LATEST_SENDER. As soon as a sender has the lock 
- * it can put the data to the receiver. Then it updates the CURRENT_SENDER at the receiver to signal the receiver the origin of the data. To synchronize both sender and 
- * receiver the sender now spins over its local variable until the receiver has copied the data from the window to its passed data buffer and updates the spin variable of 
- * the origin sender. This step also guarantees that the next lockholder must wait until the receiver has fetched the data from the previous lockholder. After the 
- * synchronization the sender process only needs to check if another process has registered for the lock at the NEXT_SENDER. If its the case the calling sender can just 
- * wake the next sender up and return. If there is no other sender registered at the NEXT_RANK it needs to CAS the LATEST_SENDER with its own rank.  If it matches, the 
- * sender replaces LATEST_SENDER with -1 meaning that no other sender has registered for the lock and the calling sender can return. However if there is a number unlike 
- * the rank of the calling sender another sender will or has registered for the lock. This means the calling sender must wait until the local NEXT_SENDER will be updated. 
- * After this happends the calling sender can wake the newly registered sender up and return.
- * 
- * Layout of local window memory of each process depending on sender or receiver process
- * Sender:      | SPIN_1 | SPIN_2 | NEXT_SENDER |
- * Receiver:    | CURRENT_SENDER | LATEST_SENDER | DATA 
- * 
- * Why using passive target communication over MPI_Fence and MPI_{Post|Start|Complete|Wait}?
- * - MPI_Win_fence can not be used because its collective over all processes used in the window creation. You would have to create a window + communicator for every 
- *  receiver-sender pair. However there is no function to test if another process has called MPI_Win_fence (like MPI_Test). This means that the approach of iterating 
- *  over all sender is not possible 
- * - MPI_{Post|Wait|Start|Complete} indeed allows the communication between groups of processes within a communicator but there cannot be made an exact statement about
- *  the order of the execution of the access epochs (no starvation-freeness given). This means that in send iterations one process could always be preferred 
- * 
+ * @copyright CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
  */
 
 #include "RMA_MPSC_SYNC.h"
@@ -48,17 +16,22 @@
 #define SPIN_2 1
 #define NEXT_SENDER 2
 
+// Used as displacements
+#define DISPL_NEXT_SENDER 2 * sizeof(int)
+#define DISPL_DATA 2 * sizeof(int)
+
 // Used for resetting current and latest sender
 const int minus_one = -1;
 
-// Used as const displacements
-const int displ_next_sender = 2 * sizeof(int);
-const int displ_data = 2 * sizeof(int);
+
+
+//const int displ_next_sender = 2 * sizeof(int);
+//const int displ_data = 2 * sizeof(int);
 
 MPI_Channel *channel_alloc_rma_mpsc_sync(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_MPSC;
+    ch->chan_type = MPSC;
 
     // Allocate memory for window depending on receiver or sender process
     if (ch->is_receiver)
@@ -172,7 +145,7 @@ int channel_send_rma_mpsc_sync(MPI_Channel *ch, void *data)
     if (latest_sender != -1)
     {
         // Write own rank to local next sender variable at the latest sender registering for the lock with an atomic replace
-        if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, latest_sender, displ_next_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS) 
+        if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, latest_sender, DISPL_NEXT_SENDER, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS) 
         {
             ERROR("Error in MPI_Fetch_and_op()\n");
             return -1;           
@@ -191,7 +164,7 @@ int channel_send_rma_mpsc_sync(MPI_Channel *ch, void *data)
     // At this point the calling sender has the lock
 
     // Send the data to the receiver window at the specific data offset (base address + 2 * sizeof(int))
-    if (MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], displ_data, ch->data_size, MPI_BYTE, ch->win) != MPI_SUCCESS)
+    if (MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], DISPL_DATA, ch->data_size, MPI_BYTE, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Put()\n");
         return -1;  
@@ -258,7 +231,7 @@ int channel_send_rma_mpsc_sync(MPI_Channel *ch, void *data)
     }
 
     // Fetch next sender rank to wake up with local atomic operation; seems to be faster then MPI_Fetch_and_op
-    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_sender, 1,MPI_INT, ch->my_rank, displ_next_sender, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_sender, 1,MPI_INT, ch->my_rank, DISPL_NEXT_SENDER, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Get_accumulate()\n");
         return -1;    
