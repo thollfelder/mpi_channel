@@ -1,5 +1,7 @@
 #include "src/MPI_Channel.h"
 
+#include <stdio.h>
+
 int main() {
 
 

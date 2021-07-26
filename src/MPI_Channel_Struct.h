@@ -80,15 +80,13 @@ typedef struct MPI_Channel{
     int         sender_count;           /** Stores the number of sender processes */
 
     MPI_Request req;                    /** Stores Request used for nonblocking MPI calls */
-
     MPI_Channel_type chan_type;         /** Stores the channel type (SPSC, MPSC or MPMC) */
     MPI_Communication_type comm_type;   /** Stores the communication type (PT2PT or RMA) */
 
     MPI_Comm        comm;               /** Stores shadow comm used as unique communicator context within the channel */ 
     int             comm_size;          /** Stores the size of the used communicator */
     
-    MPI_Status      status;             // needed e.g. returning message count when peeking channel
-    int             alloc_failed;       // used to signal to other procs if allocation was successfull    
+    MPI_Status      status;             /** needed e.g. returning message count when peeking channel */
 
     /** Function pointers for easier function calling of the various channel implementation */
     int (*ptr_channel_send)(struct MPI_Channel*, void*);
@@ -98,7 +96,6 @@ typedef struct MPI_Channel{
 
     int         buffered_items;         /** Bookmarks the number of buffered elements at the sender process */
     int                 flag;           /** Used for MPI_Iprobe() */
-
     int         idx_last_rank;          /** Used for MPSC storing the last rank to receive from */
 
     // PT2PT MPMC SYNC
@@ -108,40 +105,14 @@ typedef struct MPI_Channel{
     // PT2PT MPMC BUF
     int loc_capacity;                   /** Used to store the local capacity for every receiver */
     int *receiver_buffered_items;       /** Integer array storing the number of buffered elements at each receiver */
-
-
-
-    // Properties for PT2PT MPMC SYNC
-
-    // Stores integers to signal if a request message has been sent
-    // Stores MPI_Requests for MPI_Issend
-    MPI_Request         *requests;
-
-    ////////////////////////**
-    // Properties for buffered
-    ////////////////////////**
-
-    // spsc unbuffered unsynchronized traits
-    // Used for buf and sync spsc
-
-    // spsc unbuffered unsynchronized traits
-    // Used for buf and sync spsc
-
-    // mpsc sync to store the index of the last sender rank where iterating stopped
-
-    //int         index_last_sender_rank;
-    //int         received;
-    // NOT NEEDED?
-
+    // PT2PT MPMC SYNC
+    MPI_Request         *requests;      /** Used for PT2PT MPMC SYNC */
     // RMA
     MPI_Win     win;
     void*       target_buff;
     void*       local_buff;     // Used to store buffer indices locally
     int*        local_indices;
-
     void*       win_lmem;       // Used to store the buffer of the window object
-
-
 
 } MPI_Channel;
 
