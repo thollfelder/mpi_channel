@@ -23,11 +23,6 @@
 // Used for resetting current and latest sender
 const int minus_one = -1;
 
-
-
-//const int displ_next_sender = 2 * sizeof(int);
-//const int displ_data = 2 * sizeof(int);
-
 MPI_Channel *channel_alloc_rma_mpsc_sync(MPI_Channel *ch)
 {
     // Store internal channel type
@@ -231,7 +226,8 @@ int channel_send_rma_mpsc_sync(MPI_Channel *ch, void *data)
     }
 
     // Fetch next sender rank to wake up with local atomic operation; seems to be faster then MPI_Fetch_and_op
-    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_sender, 1,MPI_INT, ch->my_rank, DISPL_NEXT_SENDER, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_sender, 1,MPI_INT, ch->my_rank, DISPL_NEXT_SENDER, sizeof(int), 
+    MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Get_accumulate()\n");
         return -1;    

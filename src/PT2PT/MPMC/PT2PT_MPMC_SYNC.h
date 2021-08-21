@@ -18,7 +18,6 @@
  * which receives the cancel message while the sender is waiting for an answer of the send request. The sender then
  * sends those receivers als a send request allowing them to have a chance to receive the latest data.
  */
-// TODO: Update Channel Description
 
 #ifndef PT2PT_MPMC_SYNC_H
 #define PT2PT_MPMC_SYNC_H

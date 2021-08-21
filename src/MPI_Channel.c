@@ -111,7 +111,7 @@ MPI_Channel *channel_alloc(size_t size, int capacity, MPI_Communication_type com
         return NULL;
     }
 
-    // Do local stuff here until the nonblocking operation have finished
+    // Do local stuff here until the nonblocking operations have finished
     // Update is_receiver flag
     ch->is_receiver = is_receiver;
 
@@ -354,7 +354,6 @@ int channel_send(MPI_Channel *ch, void *data)
     }
     else 
     {
-        printf("Calling sending function pointer\n");
         // Call function stored at function pointer
         return (*ch->ptr_channel_send)(ch, data);
     }
@@ -501,7 +500,6 @@ int channel_receive(MPI_Channel *ch, void *data)
     }
     else 
     {
-        printf("Calling receiving function pointer\n");
         // Call function stored at function pointer
         return (*ch->ptr_channel_receive)(ch, data);
     }
@@ -640,7 +638,6 @@ int channel_peek(MPI_Channel *ch)
     }
 
     // Synchronous channels do not support channel_peek()
-    printf("Calling peeking function pointer\n");
     // Call function stored at function pointer
     return (*ch->ptr_channel_peek)(ch);
     

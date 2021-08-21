@@ -124,20 +124,19 @@ int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data)
         MPI_Win_sync(ch->win);
     }
 
-    // Send data to the target window at the base address + write position * data size
+    // Send data to the target window at the base address + write position times data size
     MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], DATA_DISP + index[1] * ch->data_size, ch->data_size, 
     MPI_BYTE, ch->win);
 
     // Ensure completion of data transfer with MPI_Put
-    // Avoids updated write index but not completed data transfer
+    // Needs to be done before the write index is updated
     MPI_Win_flush(ch->receiver_ranks[0], ch->win);
 
     // Increment index to let it point to the write index
     // Then update write index depending on its position (0 if end of queue, +1 otherwise)
     *++index == ch->capacity ? *index = 0 : (*index)++;
 
-    // Send updated write index
-    // Not as fast as put but must be atomic; faster than MPI_Fetch_and_op 
+    // Send updated write index with atomic put
     MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE,
      ch->win);
 

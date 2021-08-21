@@ -130,13 +130,6 @@ int channel_send_pt2pt_spsc_buf(MPI_Channel *ch, void *data)
 
 int channel_receive_pt2pt_spsc_buf(MPI_Channel *ch, void *data)
 {
-    // Probe for data message
-    if (MPI_Probe(ch->sender_ranks[0], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Probe()");
-        return -1;
-    }
-
     // Receive data from sender
     if (MPI_Recv(data, ch->data_size, MPI_BYTE, ch->sender_ranks[0], 0, ch->comm, MPI_STATUS_IGNORE) != MPI_SUCCESS)
     {

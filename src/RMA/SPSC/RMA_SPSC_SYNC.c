@@ -115,7 +115,7 @@ int channel_send_rma_spsc_sync(MPI_Channel *ch, void *data)
 
 int channel_receive_rma_spsc_sync(MPI_Channel *ch, void *data)
 {
-    // Start RMA access epoch
+    // Start RMA exposure epoch
     if (MPI_Win_fence(MPI_MODE_NOSTORE | MPI_MODE_NOPRECEDE, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Win_fence()\n");
@@ -124,7 +124,7 @@ int channel_receive_rma_spsc_sync(MPI_Channel *ch, void *data)
     
     // Wait until items are received
     
-    // End RMA access epoch
+    // End RMA exposure epoch
     if (MPI_Win_fence(MPI_MODE_NOPUT | MPI_MODE_NOSTORE | MPI_MODE_NOSUCCEED, ch->win) != MPI_SUCCESS)
     {
         ERROR("Error in MPI_Win_fence()\n");

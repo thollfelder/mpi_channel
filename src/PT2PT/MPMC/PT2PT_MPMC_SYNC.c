@@ -238,8 +238,6 @@ int channel_send_pt2pt_mpmc_sync(MPI_Channel *ch, void *data)
     // Store last rank
     ch->idx_last_rank = last_rank;
 
-    // TODO: Can an overflow result into problems? No
-    // TODO: What happends if one receiver answers with overflowed tag
     // Increment message counter
     ch->tag++;
 

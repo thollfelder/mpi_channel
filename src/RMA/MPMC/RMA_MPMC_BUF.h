@@ -8,7 +8,7 @@
  * 
  * This RMA MPMC BUF channel implementation use passive target communication and especially a modified version of the 
  * nonblocking M&S queue algorithm. It is modified so that this implementation is fair and starvation-free and notably
- * wait-free for sender and lock-free for receiver process. For the sender process this implementation works basically
+ * wait-free for the sender process. For the sender process this implementation works basically
  * the same as the RMA MPSC BUF channel implementation. To synchronize the access and updating of the head pointer a 
  * distributed lock is used for the receiver processes. 
  * 

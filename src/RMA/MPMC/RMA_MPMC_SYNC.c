@@ -161,59 +161,123 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     lmem[NEXT_RANK] = -1;
 
     // Lock window of all procs of communicator (lock type is shared)
-    MPI_Win_lock_all(0, ch->win);
+    if (MPI_Win_lock_all(0, ch->win) != MPI_SUCCESS) 
+    {
+        ERROR("Error in MPI_Win_lock_all()\n");
+        return -1;          
+    } 
 
     // Replace latest sender rank at intermediate receiver with rank of calling sender
-    MPI_Fetch_and_op(&ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, MPI_REPLACE, ch->win);
+    if (MPI_Fetch_and_op(&ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, MPI_REPLACE, ch->win) 
+    != MPI_SUCCESS) 
+    {
+        ERROR("Error in MPI_Fetch_and_op()\n");
+        return -1;          
+    } 
 
     // If latest rank is the rank of another sender, this sender comes before calling sender
     if (latest_rank != -1)
     {
         // Add own rank to the next rank of the latest sender
-        MPI_Accumulate(&ch->my_rank, 1, MPI_INT, latest_rank, sizeof(int) * NEXT_RANK, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+        if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, latest_rank, sizeof(int) * NEXT_RANK, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) 
+        != MPI_SUCCESS) 
+        {
+            ERROR("Error in MPI_Accumulate()\n");
+            return -1;          
+        }    
 
         // Spin over local variable until woken up by latest sender/previous lockholder
         do
         {
-            MPI_Win_sync(ch->win); // This ensures memory update if using non-unified memory model
+            if (MPI_Win_sync(ch->win) != MPI_SUCCESS) // This ensures memory update if using non-unified memory model
+            {
+                ERROR("Error in MPI_Win_sync()\n");
+                return -1;          
+            }  
         } while (lmem[SPIN_1] == -1);
     }
     // At this point the calling sender has the sender lock
 
     // Replace atomically current sender rank at intermediate receiver with own rank; receiver then knows the origin of the data
-    MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, 
+    ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Accumulate()\n");
+            return -1;          
+        }  
 
     // Needs memory barrier to ensure that updating current sender rank is finished before reading current receiver rank
     // Otherwise it could lead to deadlock
-    MPI_Win_flush(ch->receiver_ranks[0], ch->win);
+    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_flush()\n");
+        return -1;          
+    } 
 
     // Check if a receiver is already waiting
-    MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_receiver, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
+    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_receiver, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, 
+    sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Get_accumulate()\n");
+        return -1;          
+    } 
 
     // If a receiver is waiting continue, otherwise calling sender needs to wait for a receiver
     while (current_receiver == -1) {
         do
         {
-            MPI_Win_sync(ch->win); // Update memory
+            if (MPI_Win_sync(ch->win) != MPI_SUCCESS) // Update memory
+            {
+                ERROR("Error in MPI_Win_sync()\n");
+                return -1;          
+            }  
         } while (lmem[SPIN_2] == -1);
 
         // Get receiver rank
-        MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_receiver, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
+        if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_receiver, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, 
+        sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Get_accumulate()\n");
+            return -1;          
+        } 
     }
     // At this point a receiver has registered at intermediate receiver
 
     // Send data to the current receiver
-    MPI_Put(data, ch->data_size, MPI_BYTE, current_receiver, data_offset, ch->data_size, MPI_BYTE, ch->win);
+    if (MPI_Put(data, ch->data_size, MPI_BYTE, current_receiver, data_offset, ch->data_size, MPI_BYTE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Put()\n");
+        return -1;          
+    } 
 
     // Force completion of data transfer before signaling completion on receiver side
-    MPI_Win_flush(current_receiver, ch->win);
+    if (MPI_Win_flush(current_receiver, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_flush()\n");
+        return -1;          
+    } 
 
     // Reset current receiver and sender ranks to -1; ensures that next sender and receiver wait if no matching process registered
-    MPI_Accumulate(&rma_mpmc_sync_minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
-    MPI_Accumulate(&rma_mpmc_sync_minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(&rma_mpmc_sync_minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, 
+    MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;          
+    } 
+    if (MPI_Accumulate(&rma_mpmc_sync_minus_one, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, 
+    MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;          
+    } 
 
     // Wake up receiver
-    MPI_Accumulate(&ch->my_rank, 1, MPI_INT, current_receiver, sizeof(int) * SPIN_2, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, current_receiver, sizeof(int) * SPIN_2, sizeof(int), MPI_BYTE, 
+    MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;          
+    } 
 
     // At this point the receiver received the data and a synchronisation between sender and receiver took place
 
@@ -222,32 +286,56 @@ int channel_send_rma_mpmc_sync(MPI_Channel *ch, void *data)
     {
         // Compare the latest rank at the receiver with own rank; if they are the same exchange latest rank with -1
         // signaling that no sender currently has the lock
-        MPI_Compare_and_swap(&rma_mpmc_sync_minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, ch->win);
+        if (MPI_Compare_and_swap(&rma_mpmc_sync_minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_sender, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Compare_and_swap()\n");
+            return -1;          
+        } 
 
         // If latest rank at receiver is equal to own rank, no other sender added themself to the lock list
         if (latest_rank == ch->my_rank)
         {
-            MPI_Win_unlock_all(ch->win);
+            if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_unlock_all()\n");
+                return -1;          
+            } 
             return 1;
         }
         // Else another sender has added themself to the lock list, calling sender needs to wait until the other sender 
         // updated the local next rank
         do
         {
-            MPI_Win_sync(ch->win);
+            if (MPI_Win_sync(ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_sync()\n");
+                return -1;          
+            } 
         } while (lmem[NEXT_RANK] == -1);
     }
 
     // Fetch next rank to wake up with atomic operation
     // Seems to be faster then MPI_Fetch_and_op
     //MPI_Fetch_and_op(&minus_one, &next_rank, MPI_INT, ch->my_rank, 4, MPI_REPLACE, ch->win);    
-    MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_rank, 1,MPI_INT, ch->my_rank, sizeof(int) * 2, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
+    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_rank, 1,MPI_INT, ch->my_rank, sizeof(int) * 2, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Get_accumulate()\n");
+        return -1;          
+    } 
 
     // Notify next sender by updating first spinning variable with a number unlike -1
-    MPI_Accumulate(&ch->my_rank, 1, MPI_INT, next_rank, 0, 1, MPI_INT, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, next_rank, 0, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;          
+    } 
 
     // Unlock window
-    MPI_Win_unlock_all(ch->win);
+    if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_unlock_all()\n");
+        return -1;          
+    } 
 
     return 1;
 }
@@ -276,46 +364,82 @@ int channel_receive_rma_mpmc_sync(MPI_Channel *ch, void *data)
     lmem[NEXT_RANK] = -1;
 
     // Lock window of all procs of communicator (lock type is shared)
-    MPI_Win_lock_all(0, ch->win);
+    if (MPI_Win_lock_all(0, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_lock_all()\n");
+        return -1;          
+    } 
 
     // Replace latest receiver rank at intermediator receiver with rank of calling receiver
-    MPI_Fetch_and_op(&ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, MPI_REPLACE, ch->win);
+    if (MPI_Fetch_and_op(&ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Fetch_and_op()\n");
+        return -1;          
+    } 
 
     // If latest rank is the rank of another receiver, this receiver comes before the calling receiver
     if (latest_rank != -1)
     {
         // Add own rank to the next rank to wake up of the latest receiver
-        MPI_Accumulate(&ch->my_rank, 1, MPI_INT, latest_rank, sizeof(int) * NEXT_RANK, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+        if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, latest_rank, sizeof(int) * NEXT_RANK, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Accumulate()\n");
+            return -1;          
+        } 
 
         // Spin over local variable until woken up by latest receiver/previous lockholder
         do
         {
-            MPI_Win_sync(ch->win); // This ensures memory update if using non-unified memory model
+            if (MPI_Win_sync(ch->win) != MPI_SUCCESS) // This ensures memory update if using non-unified memory model
+            {
+                ERROR("Error in MPI_Win_sync()\n");
+                return -1;          
+            }  
         } while (lmem[SPIN_1] == -1);
     }
     // At this point the calling receiver has the receiver lock
 
     // Replace atomically current receiver rank at intermediator receiver with own rank; sender then knows the target of the data
-    MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, ch->receiver_ranks[0], cur_receiver, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;          
+    } 
 
     // Needs barrier to ensure that updating current receiver rank is finished before reading current sender rank
     // Otherwise it could lead to deadlock
-    MPI_Win_flush(ch->receiver_ranks[0], ch->win);
+    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_flush()\n");
+        return -1;          
+    } 
 
     // Check if a sender is waiting
-    MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_sender, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
+    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &current_sender, 1, MPI_INT, ch->receiver_ranks[0], cur_sender, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Get_accumulate()\n");
+        return -1;          
+    } 
 
     // If a sender is waiting for a receiver
     if (current_sender != -1) {
         // Update spinning variable of current sender
-        MPI_Accumulate(&ch->my_rank, 1, MPI_INT, current_sender, sizeof(int) * SPIN_2, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+        if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, current_sender, sizeof(int) * SPIN_2, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Accumulate()\n");
+            return -1;          
+        } 
     }
     // Else the receiver can just wait until a sender registers, fetches the current receiver rank and sends the data
 
     // Receiver waits until sender finished data transfer
     do
     {
-        MPI_Win_sync(ch->win); // Update memory
+        if (MPI_Win_sync(ch->win) != MPI_SUCCESS) // Update memory
+        {
+            ERROR("Error in MPI_Win_sync()\n");
+            return -1;          
+        }  
     } while (lmem[SPIN_2] == -1);
     
     // At this point the current sender finished sending the data
@@ -330,31 +454,55 @@ int channel_receive_rma_mpmc_sync(MPI_Channel *ch, void *data)
     {
         // Compare the latest receiver rank at the intermediator receiver with own rank; if they are the same exchange latest rank with -1
         // signaling that no receiver currently has the lock
-        MPI_Compare_and_swap(&rma_mpmc_sync_minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, ch->win);
+        if (MPI_Compare_and_swap(&rma_mpmc_sync_minus_one, &ch->my_rank, &latest_rank, MPI_INT, ch->receiver_ranks[0], latest_receiver, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Compare_and_swap()\n");
+            return -1;          
+        } 
 
         // If latest rank at intermediator receiver is equal to own rank, no other receiver added themself to the lock list
         if (latest_rank == ch->my_rank)
         {
-            MPI_Win_unlock_all(ch->win);
+            if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_unlock_all()\n");
+                return -1;          
+            } 
             return 1;
         }
         // Else another receiver has added themself to the lock list, calling receiver needs to wait until the other receiver 
         // updated the local next rank
         do
         {
-            MPI_Win_sync(ch->win);
+            if (MPI_Win_sync(ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_sync()\n");
+                return -1;          
+            } 
         } while (lmem[NEXT_RANK] == -1);
     }
 
     // Fetch next rank to wake up with atomic operation
     // Seems to be faster then MPI_Fetch_and_op
-    MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_rank, 1,MPI_INT, ch->my_rank, sizeof(int) * NEXT_RANK, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win);
+    if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &next_rank, 1,MPI_INT, ch->my_rank, sizeof(int) * NEXT_RANK, sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Get_accumulate()\n");
+        return -1;          
+    } 
 
     // Notify next receiver by updating first spinning variable with a number unlike -1
-    MPI_Accumulate(&ch->my_rank, 1, MPI_INT, next_rank, 0, 1, MPI_INT, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(&ch->my_rank, 1, MPI_INT, next_rank, 0, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;          
+    } 
 
     // Unlock window
-    MPI_Win_unlock_all(ch->win);
+    if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_unlock_all()\n");
+        return -1;          
+    } 
 
     return 1;
 }
