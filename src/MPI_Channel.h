@@ -179,7 +179,7 @@ int channel_peek(MPI_Channel *ch);
  * 
  * @param[in, out] ch Pointer to a MPI_Channel allocated with channel_alloc()              
  * 
- * @return Returns 0 if deallocation was succesfull and -1 if an error occures
+ * @return Returns 1 if deallocation was succesfull and -1 if an error occures
  * 
  * @note The reasons for errors are the usage of MPI's buffered send mode and the appending and shrinking of the 
  * buffer.

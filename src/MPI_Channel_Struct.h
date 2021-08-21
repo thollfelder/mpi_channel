@@ -39,7 +39,7 @@ printf(__VA_ARGS__);\
 
 // Set to 1 or 0 if corresponding output is wished
 #define SHOW_ERROR 1
-#define SHOW_DEBUG 1
+#define SHOW_DEBUG 0
 #define SHOW_WARNING 1
 
 #endif // MPI_CHANNEL_DEBUG_MESSAGES

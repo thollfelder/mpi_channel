@@ -121,24 +121,42 @@ int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data)
     {
         // Check MPI Memory Model for further information
         // Ensure that memory is updated
-        MPI_Win_sync(ch->win);
+        if (MPI_Win_sync(ch->win)!= MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_sync()\n");
+            return -1;
+        }
     }
 
+    printf("Sender: index[0]=%i, index[1]=%i\n", index[0], index[1]);
+
     // Send data to the target window at the base address + write position times data size
-    MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], DATA_DISP + index[1] * ch->data_size, ch->data_size, 
-    MPI_BYTE, ch->win);
+    if (MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], DATA_DISP + index[1] * ch->data_size, ch->data_size, 
+    MPI_BYTE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Put()\n");
+        return -1;
+    }
 
     // Ensure completion of data transfer with MPI_Put
     // Needs to be done before the write index is updated
-    MPI_Win_flush(ch->receiver_ranks[0], ch->win);
+    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_flush()\n");
+        return -1;
+    }
 
     // Increment index to let it point to the write index
     // Then update write index depending on its position (0 if end of queue, +1 otherwise)
     *++index == ch->capacity ? *index = 0 : (*index)++;
 
     // Send updated write index with atomic put
-    MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE,
-     ch->win);
+    if (MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE,
+     ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;
+    }
 
     // Returns when MPI_Puts completed
     if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
@@ -166,9 +184,15 @@ int channel_receive_rma_spsc_buf(MPI_Channel *ch, void *data)
     while (index[0] == index[1])
     {
         // Ensure that memory is updated
-        MPI_Win_sync(ch->win);
+        if (MPI_Win_sync(ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_sync()\n");
+            return -1;
+        }
     }
-    
+
+    printf("Receiver: index[0]=%i, index[1]=%i\n", index[0], index[1]);
+
     // Copy data to user buffer
     memcpy(data, (char *)index + DATA_DISP + ch->data_size * index[0], ch->data_size);
     
@@ -177,7 +201,11 @@ int channel_receive_rma_spsc_buf(MPI_Channel *ch, void *data)
 
     // Send updated read index
     // Not as fast as put but must be atomic; faster than MPI_Fetch_and_op 
-    MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->sender_ranks[0], 0, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win);
+    if (MPI_Accumulate(index, sizeof(int), MPI_BYTE, ch->sender_ranks[0], 0, sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Accumulate()\n");
+        return -1;
+    }
 
     if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
     {
@@ -199,9 +227,6 @@ int channel_peek_rma_spsc_buf(MPI_Channel *ch)
         ERROR("Error in MPI_Win_lock()\n");
         return -1;
     }
-
-    // Update local memory
-    MPI_Win_sync(ch->win);
 
     // Calculate difference between write and read index
     int dif = index[1] - index[0];

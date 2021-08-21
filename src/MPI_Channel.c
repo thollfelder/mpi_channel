@@ -740,7 +740,7 @@ int channel_free(MPI_Channel *ch)
     }
 
     // Call function stored at function pointer
-    return (*ch->ptr_channel_peek)(ch);
+    return (*ch->ptr_channel_free)(ch);
 
     /*
     switch (ch->type)
