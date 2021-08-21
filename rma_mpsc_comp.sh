@@ -48,10 +48,10 @@ echo $header > $file_name
 echo "File $file_name created"
 echo "Starting measurements..."
 
-mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
-mpirun -np 2 ./Test --type RMA   --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
-mpirun -np 2 ./Test --type PT2PT --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
-mpirun -np 2 ./Test --type RMA   --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#mpirun -np 2 ./Test --type RMA   --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#mpirun -np 2 ./Test --type PT2PT --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+##mpirun -np 2 ./Test --type RMA   --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
 mpirun -np 3 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
 mpirun -np 3 ./Test --type RMA   --capacity 0 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
 mpirun -np 3 ./Test --type PT2PT --capacity 2 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
