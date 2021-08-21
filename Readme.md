@@ -1,8 +1,8 @@
 # MPI Channel #
 
 This channel implementation originated from my bachelor thesis "Design und Implementierung von Channels im
-verteilten Adressraum" at the University of Bayreuth, and is intended to be used on clusters with distributed addresss 
-space using MPI as a communication library.
+verteilten Adressraum" (eng. Design and Implementation of Channels for distributed address space) at the University of 
+Bayreuth, and is intended to be used on computer systems with distributed address space using MPI as a communication library.
 
 # Implementation #
 
@@ -16,4 +16,4 @@ and asynchronous or unbuffered and synchronous) and the underlying communication
 
 # Known bugs #
 
-- RMA MPMC SYNC does not run on distributed server nodes using openmpi
+No one right now :)
