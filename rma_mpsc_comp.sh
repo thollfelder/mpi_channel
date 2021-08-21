@@ -2,7 +2,8 @@
 
 #SBATCH --job-name job_001                              # Specifies name for job allocation; default is script name
 #SBATCH --output job.%j.out 
-#SBATCH --nodes 8                                       # Required number of nodes
+#SBATCH --nodes 2                                       # Required number of nodes
+#SBATCH --ntasks 2                                       # Required number of nodes
 #SBATCH --ntasks-per-node 1                             # Maximum processes per node
 #SBATCH --time 00:30:00                                 # Sets a time limit
 #SBATCH --exclusive                                     # Job allocation does not share node with others
@@ -17,7 +18,8 @@ echo "HOST:$HOST"
 # starts local session on node03 to compile
 #srun --nodes=2 --ntasks-per-node=16 --time=02:00:00 --exclusive --nodelist node03,node04 --pty bash -i
 
-mpi_impl1="openmpi/4.1.1-ucx-no-verbs-no-libfabric"
+#mpi_impl1="openmpi/4.1.1-ucx-no-verbs-no-libfabric"
+mpi_impl1="mpich/3.4"
 gcc_comp="gcc/10.3.0"
 module load $mpi_impl1
 echo "Module $mpi_impl1 loaded"
@@ -45,15 +47,17 @@ header="com_mech,chantype,num_procs,num_prod,num_cons,iterations,capacity,is_rec
 echo $header > $file_name
 echo "File $file_name created"
 echo "Starting measurements..."
-for pro in $procs; do
-    for ca in $cap; do 
-        mpirun -np $procs ./Test --type RMA --capacity $ca --producers $(($pro-$prod)) --receivers $rec --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-    done
-done
+
+mpirun -np 2 ./Test --type RMA   --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+
+#for pro in $procs; do
+#    for ca in $cap; do 
+#        mpirun -np $procs ./Test --type RMA --capacity $ca --producers $(($pro-$prod)) --receivers $rec --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
+#    done
+#done
 
 echo "Finished measurements..."
 
 # ends local session 
 #exit
 
-mpirun -np 3 ./Test --type RMA --capacity 2 --producers 2 --receivers 1 --msg_num 100000 --iterations 1 --file_name asdasd --implementation impl        

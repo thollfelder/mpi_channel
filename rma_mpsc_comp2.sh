@@ -54,4 +54,40 @@ echo "Finished measurements..."
 # ends local session 
 exit
 
+srun --nodes=2 --ntasks=2 --ntasks-per-node=1 --exclusive --pty mpirun -np 2 ./Test --type RMA --capacity 2 --producers 1 --receivers 1 --msg_num 4 --iterations 1 --file_name asdasd --implementation impl
 
+srun --nodes=2 --ntasks=2 --ntasks-per-node=1 --exclusive --pty mpirun -np 2 ./Test --type RMA --capacity 2 --producers 1 --receivers 1 --msg_num 4 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=2 --ntasks-per-socket=2 --exclusive --pty mpirun -np 2 ./Test --type RMA --capacity 2 --producers 1 --receivers 1 --msg_num 4 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=2 --ntasks-per-core=2 --exclusive --pty mpirun -np 2 ./Test --type RMA --capacity 2 --producers 1 --receivers 1 --msg_num 4 --iterations 1 --file_name asdasd --implementation impl
+
+
+srun --nodes=1 --ntasks=2 --ntasks-per-socket=2 --exclusive --pty mpirun -np 2 ./Test --type RMA --capacity 2 --producers 1 --receivers 1 --msg_num 4 --iterations 1 --file_name asdasd --implementation impl
+
+
+# Shared Nodes
+srun --nodes=1 --ntasks=2 --ntasks-per-socket=2 --exclusive --pty mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=2 --ntasks-per-socket=2 --exclusive --pty mpirun -np 2 ./Test --type RMA   --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=2 --ntasks-per-socket=2 --exclusive --pty mpirun -np 2 ./Test --type PT2PT --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=2 --ntasks-per-socket=2 --exclusive --pty mpirun -np 2 ./Test --type RMA   --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=3 --ntasks-per-socket=2 --exclusive --pty mpirun -np 3 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=3 --ntasks-per-socket=2 --exclusive --pty mpirun -np 3 ./Test --type RMA   --capacity 0 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=3 --ntasks-per-socket=2 --exclusive --pty mpirun -np 3 ./Test --type PT2PT --capacity 2 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=3 --ntasks-per-socket=2 --exclusive --pty mpirun -np 3 ./Test --type RMA   --capacity 2 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=4 --ntasks-per-socket=2 --exclusive --pty mpirun -np 4 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=4 --ntasks-per-socket=2 --exclusive --pty mpirun -np 4 ./Test --type RMA   --capacity 0 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=1 --ntasks=4 --ntasks-per-socket=2 --exclusive --pty mpirun -np 4 ./Test --type PT2PT --capacity 2 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=1 --ntasks=4 --ntasks-per-socket=2 --exclusive --pty mpirun -np 4 ./Test --type RMA   --capacity 2 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+
+# Getrennte Nodes
+srun --nodes=2 --ntasks=2 --ntasks-per-socket=1 --exclusive --pty mpirun -np 2 ./Test --type PT2PT --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=2 --ntasks=2 --ntasks-per-socket=1 --exclusive --pty mpirun -np 2 ./Test --type RMA   --capacity 0 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=2 --ntasks=2 --ntasks-per-socket=1 --exclusive --pty mpirun -np 2 ./Test --type PT2PT --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=2 --ntasks=2 --ntasks-per-socket=1 --exclusive --pty mpirun -np 2 ./Test --type RMA   --capacity 2 --producers 1 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=2 --ntasks=3 --ntasks-per-socket=1 --exclusive --pty mpirun -np 3 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=2 --ntasks=3 --ntasks-per-socket=1 --exclusive --pty mpirun -np 3 ./Test --type RMA   --capacity 0 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=2 --ntasks=3 --ntasks-per-socket=1 --exclusive --pty mpirun -np 3 ./Test --type PT2PT --capacity 2 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=2 --ntasks=3 --ntasks-per-socket=1 --exclusive --pty mpirun -np 3 ./Test --type RMA   --capacity 2 --producers 2 --receivers 1 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+srun --nodes=2 --ntasks=4 --ntasks-per-socket=1 --exclusive --pty mpirun -np 4 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=2 --ntasks=4 --ntasks-per-socket=1 --exclusive --pty mpirun -np 4 ./Test --type RMA   --capacity 0 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=2 --ntasks=4 --ntasks-per-socket=1 --exclusive --pty mpirun -np 4 ./Test --type PT2PT --capacity 2 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+#srun --nodes=2 --ntasks=4 --ntasks-per-socket=1 --exclusive --pty mpirun -np 4 ./Test --type RMA   --capacity 2 --producers 2 --receivers 2 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
