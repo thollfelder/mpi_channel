@@ -127,7 +127,7 @@ int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data)
 
     } while ((index_w + 1 == index_r) || ((index_w == ch->capacity && (index_r == 0))));
 
-    printf("Sender: index[0]=%i, index[1]=%i\n", index_w, index_r);
+    printf("Sender0: index[0]=%i, index[1]=%i\n", index_w, index_r);
 
     // Send data to the target window at the base address + write position times data size
     if (MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], DATA_DISP + index[1] * ch->data_size, ch->data_size, 
@@ -190,7 +190,7 @@ int channel_receive_rma_spsc_buf(MPI_Channel *ch, void *data)
 
     } while (index_r == index_w);
 
-    printf("Receiver: index[0]=%i, index[1]=%i\n", index[0], index[1]);
+    printf("Receiver0: index[0]=%i, index[1]=%i\n", index_r, index_w);
 
     // Copy data to user buffer
     memcpy(data, (char *)index + DATA_DISP + ch->data_size * index[0], ch->data_size);
