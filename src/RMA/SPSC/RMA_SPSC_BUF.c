@@ -108,7 +108,6 @@ int channel_send_rma_spsc_buf(MPI_Channel *ch, void *data)
 {
     // Store pointer to local indices
     int *index = ch->win_lmem;
-    int index_r, index_w;
 
     // Register with the windows, locktype is shared
     if (MPI_Win_lock_all(0, ch->win) != MPI_SUCCESS)

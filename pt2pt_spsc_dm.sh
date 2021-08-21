@@ -2,9 +2,9 @@
 
 #SBATCH --job-name job_001                              # Specifies name for job allocation; default is script name
 #SBATCH --output job.%j.out 
-#SBATCH --nodes 1                                       # Required number of nodes
-#SBATCH --ntasks 16                                       # Required number of nodes
-#SBATCH --ntasks-per-node 16                             # Maximum processes per node
+#SBATCH --nodes 2                                       # Required number of nodes
+#SBATCH --ntasks 2                                       # Required number of nodes
+#SBATCH --ntasks-per-node 1                             # Maximum processes per node
 #SBATCH --time 01:00:00                                 # Sets a time limit
 #SBATCH --exclusive                                     # Job allocation does not share node with others
 
@@ -43,11 +43,11 @@ cap="0 1 2 4 8 16 32 64 128 256 512"
 procs="3 4 5 6"
 prod=1
 rec=1
-msgs=300000
+msgs=3000000
 iter=1
 # create file for measurements
 date_today=$(date -d yesterday '+%Y-%m-%d-%T')
-file_name="PT2PT-SM-"$date_today.csv
+file_name="PT2PT-SPSC-SM-"$date_today.csv
 header="com_mech,chantype,num_procs,num_prod,num_cons,iterations,capacity,is_receiver,rank,byte,byte_indi,time,bandwidth,implementation"
 echo $header > $file_name
 echo "File $file_name created"
@@ -57,24 +57,6 @@ echo "Starting measurements..."
 for ca in $cap; do 
     mpirun -np 2 ./Test --type PT2PT --capacity $ca --producers 1 --receivers 1 --msg_num $msgs --iterations 1 --file_name $file_name --implementation $mpi_impl1
 done
-
-# PT2PT MPSC BUF AND SYNC
-for pro in $procs; do
-    for ca in $cap; do 
-        mpirun -np $pro ./Test --type PT2PT --capacity $ca --producers $(($pro-$prod)) --receivers 1 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-    done
-done
-
-# PT2PT MPMC SYNC
-mpirun -np 4 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 2 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 5 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 3 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 6 ./Test --type PT2PT --capacity 0 --producers 2 --receivers 4 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 5 ./Test --type PT2PT --capacity 0 --producers 3 --receivers 2 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 6 ./Test --type PT2PT --capacity 0 --producers 3 --receivers 3 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 7 ./Test --type PT2PT --capacity 0 --producers 3 --receivers 4 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 6 ./Test --type PT2PT --capacity 0 --producers 4 --receivers 2 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 7 ./Test --type PT2PT --capacity 0 --producers 4 --receivers 3 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
-mpirun -np 8 ./Test --type PT2PT --capacity 0 --producers 4 --receivers 4 --msg_num $msgs --iterations $iter --file_name $file_name --implementation $mpi_impl1
 
 echo "Finished measurements..."
 
