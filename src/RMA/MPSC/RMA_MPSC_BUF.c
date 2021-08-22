@@ -27,7 +27,7 @@
 #define READ 0
 #define WRITE 1
 
-#define INDICES_SIZE sizeof(int)*2
+#define INDICES_SIZE sizeof(int) * 2
 
 // Used for mpi calls as origin buffer
 const int rma_mpsc_buf_minus_one = -1;
@@ -44,7 +44,7 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
     // Store internal channel type
     ch->chan_type = RMA;
 
-   // Create backup in case of failing MPI_Comm_dup
+    // Create backup in case of failing MPI_Comm_dup
     MPI_Comm comm = ch->comm;
 
     // Create shadow comm and store it
@@ -64,7 +64,7 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
     {
         // Allocate memory for two integers and capacity * data_size in byte
         // Needs to allocate one more block of memory with size data_size to let ring buffer of size 1 work
-        if (MPI_Alloc_mem(2 * sizeof(int) + (ch->capacity+1) * ch->data_size, MPI_INFO_NULL, &ch->win_lmem) != MPI_SUCCESS)
+        if (MPI_Alloc_mem(2 * sizeof(int) + (ch->capacity + 1) * ch->data_size, MPI_INFO_NULL, &ch->win_lmem) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Alloc_mem()\n");
             free(ch);
@@ -75,7 +75,7 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
         // Create a window. Set the displacement unit to sizeof(int) to simplify
         // the addressing at the originator processes
         // Needs 2 * sizeof(int) extra space for storing the indices
-        if (MPI_Win_create(ch->win_lmem, 2 * sizeof(int) + (ch->capacity+1) * ch->data_size, 1, MPI_INFO_NULL, ch->comm, &ch->win) != MPI_SUCCESS)
+        if (MPI_Win_create(ch->win_lmem, 2 * sizeof(int) + (ch->capacity + 1) * ch->data_size, 1, MPI_INFO_NULL, ch->comm, &ch->win) != MPI_SUCCESS)
         {
             ERROR("Error in MPI_Win_create()\n");
             MPI_Free_mem(ch->win_lmem);
@@ -113,76 +113,83 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
     }
 
     //DEBUG
-    printf("RMA MPSC BUF EXCLUSIVLOCK finished allocation\n");    
+    //printf("RMA MPSC BUF EXCLUSIVLOCK finished allocation\n");
 
     return ch;
 }
 
-int channel_send_rma_mpsc_buf(MPI_Channel *ch, void *data) 
+int channel_send_rma_mpsc_buf(MPI_Channel *ch, void *data)
 {
     int indices[2];
 
-    while (1) 
+    while (1)
     {
-    // Lock the window with exclusive lock type
-    if (MPI_Win_lock(MPI_LOCK_EXCLUSIVE, ch->receiver_ranks[0], 0, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
+        // Lock the window with exclusive lock type
+        if (MPI_Win_lock(MPI_LOCK_EXCLUSIVE, ch->receiver_ranks[0], 0, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
 
-    // Get indices
-    if (MPI_Get(indices, 2*sizeof(int), MPI_BYTE, ch->receiver_ranks[0], 0, 2*sizeof(int), MPI_BYTE, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
+        
+        // Get indices
+        //if (MPI_Get(indices, 2 * sizeof(int), MPI_BYTE, ch->receiver_ranks[0], 0, 2 * sizeof(int), MPI_BYTE, ch->win) != MPI_SUCCESS)
+        //{
+        //    ERROR("Error in MPI_Win_lock()\n");
+        //    return -1;
+        //}
+        
+        if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, indices, 2, MPI_INT, ch->receiver_ranks[0], 0, 2*sizeof(int), MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Put()\n");
+            return -1;    
+        }
 
-    // Force completion of MPI_Get
-    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
+        // Force completion of MPI_Get
+        if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
 
-    // Calculate if there is space
-    if ((indices[1] + 1 == indices[0]) || (indices[1] == ch->capacity && (indices[0] == 0)))
-    {
-        // Not enough space; retry 
+        // Calculate if there is space
+        if ((indices[1] + 1 == indices[0]) || (indices[1] == ch->capacity && (indices[0] == 0)))
+        {
+            // Not enough space; retry
+            if (MPI_Win_unlock(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_lock()\n");
+                return -1;
+            }
+            continue;
+        }
+
+        // Send data
+        if (MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], 2 * sizeof(int) + indices[1] * ch->data_size, ch->data_size, MPI_BYTE, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
+
+        // Update write index depending on positon of index
+        indices[1] == ch->capacity ? indices[1] = 0 : indices[1]++;
+
+        // Update write index´
+        //if (MPI_Put(&indices[1], sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, ch->win) != MPI_SUCCESS)
+        if (MPI_Accumulate(indices + 1, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
+
+        // Unlock the window
         if (MPI_Win_unlock(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-        continue;
-    }
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
 
-    // Send data
-    if (MPI_Put(data, ch->data_size, MPI_BYTE, ch->receiver_ranks[0], 2*sizeof(int) + indices[1] * ch->data_size, ch->data_size, MPI_BYTE, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    // Update write index depending on positon of index
-    indices[1] == ch->capacity ? indices[1] = 0 : indices[1]++;
-
-    // Update write index´
-    //if (MPI_Put(&indices[1], sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, ch->win) != MPI_SUCCESS)
-    if (MPI_Accumulate(indices+1, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], sizeof(int), sizeof(int), MPI_BYTE, MPI_REPLACE, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    // Unlock the window
-    if (MPI_Win_unlock(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    return 1;
+        return 1;
     }
 }
 
@@ -190,137 +197,77 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
 {
     int *indices = ch->win_lmem;
 
-    while (1) 
+    while (1)
     {
-    // Lock the window with exclusive lock type
-    if (MPI_Win_lock(MPI_LOCK_EXCLUSIVE, ch->receiver_ranks[0], 0, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
+        // Lock the window with exclusive lock type
+        if (MPI_Win_lock(MPI_LOCK_EXCLUSIVE, ch->receiver_ranks[0], 0, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
 
-    // Calculate if there is space
-    // Can be accessed locally since locking the window synchronizes private and public windows 
-    if (indices[1] == indices[0])
-    {
-        // Nothing to receive; retry 
+        // Calculate if there is space
+        // Can be accessed locally since locking the window synchronizes private and public windows
+        if (indices[1] == indices[0])
+        {
+            // Nothing to receive; retry
+            if (MPI_Win_unlock(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_lock()\n");
+                return -1;
+            }
+            continue;
+        }
+
+        // Copy data to user buffer
+        memcpy(data, (char *)indices + 2 * sizeof(int) + ch->data_size * indices[0], ch->data_size);
+
+
+        // Update read index depending on positon of index
+        *indices == ch->capacity ? *indices = 0 : (*indices)++;
+
+        // Update read index
+        //if (MPI_Put(indices, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], 0, sizeof(int), MPI_BYTE, ch->win) != MPI_SUCCESS)
+        //{
+        //    ERROR("Error in MPI_Win_lock()\n");
+        //    return -1;
+        //}
+        
+        if (MPI_Accumulate(indices, 1, MPI_INT, ch->receiver_ranks[0], 0, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Accumulate()\n");
+            return -1;    
+        }
+
+        // Unlock the window
         if (MPI_Win_unlock(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-        continue;
-    }
+        {
+            ERROR("Error in MPI_Win_lock()\n");
+            return -1;
+        }
 
-    // Copy data to user buffer
-    memcpy(data, (char *)indices + 2*sizeof(int) + ch->data_size * indices[0], ch->data_size);
-
-    //printf("Received: %d\n", (*(int*)data));
-
-    // Update read index depending on positon of index
-    *indices == ch->capacity ? *indices = 0 : (*indices)++;
-
-    // Update read index
-    if (MPI_Put(indices, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], 0, sizeof(int), MPI_BYTE, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    // Unlock the window
-    if (MPI_Win_unlock(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    return 1;
+        return 1;
     }
 }
 
 int channel_peek_rma_mpsc_buf(MPI_Channel *ch)
 {
-    // Stores integer reference to local window memory used to access head (if consumer calls) or read and write 
-    // indices (if sender calls)
-    int *lmem = ch->win_lmem;
-
-    // Lock local window with shared lock
-    if (MPI_Win_lock(MPI_LOCK_SHARED, ch->my_rank, 0, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    // If calling process is receiver
-    if (ch->is_receiver)
-    {
-        // If head is -1 the list is empty
-        if (lmem[0] == -1)
-        {
-            // Unlock window
-            if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
-            {
-                ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
-                return -1;
-            }            
-            return 0;
-        }
-        else
-        {
-            // Unlock window
-            if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
-            {
-                ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
-                return -1;
-            }   
-            return 1;
-        }
-    }
-    // Calling process is sender
-    else 
-    {
-        // Used to store read index
-        int read;
-
-        // It could happend that a receiver interferes at lmem[READ]; fetch atomically read indices
-        if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &read, 1, MPI_INT, ch->my_rank, READ, 1, MPI_INT, MPI_NO_OP, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Get_accumulate()\n");
-            return -1;
-        } 
-
-        if (MPI_Win_flush(ch->my_rank, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Win_flush()\n");
-            return -1;
-        } 
-
-        // Calculate difference between write and read index
-        int dif = lmem[WRITE] - read;
-
-        // Unlock window
-        if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
-            return -1;
-        }
-
-        return dif >= 0 ? ch->capacity - dif :  ch->capacity - (ch->capacity + 1 + dif);  
-    }
+   return 1;
 }
 
 int channel_free_rma_mpsc_buf(MPI_Channel *ch)
 {
-   // Free allocated memory used for storing ranks
+    // Free allocated memory used for storing ranks
     free(ch->receiver_ranks);
     free(ch->sender_ranks);
 
     // Both calls should be nothrow since window object was created successfully
     // Frees window
     MPI_Win_free(&ch->win);
-    
+
     // Frees window memory
-    MPI_Free_mem(ch->win_lmem);
+    if (ch->is_receiver)
+        MPI_Free_mem(ch->win_lmem);
 
     // Frees shadow communicator; nothrow since shadow comm duplication was successful
     MPI_Comm_free(&ch->comm);
