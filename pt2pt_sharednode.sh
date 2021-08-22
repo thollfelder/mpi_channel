@@ -80,3 +80,8 @@ echo "Finished measurements..."
 
 
 srun --nodes=1 --ntasks=16 --exclusive --pty mpirun -np 8 ./Test --type PT2PT --capacity 0 --producers 4 --receivers 4 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl
+
+
+
+mpirun -np 2 ./Test --type PT2PT --capacity 10 --producers 1 --receivers 1 --msg_num 300000 --iterations 1 --file_name asdasd --implementation asdasd
+

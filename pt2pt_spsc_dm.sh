@@ -39,15 +39,15 @@ make
 echo "Compiled new"
 
 # SPSC SYNC AND BUF
-cap="0 1 2 4 8 16 32 64 128 256 512"
-procs="3 4 5 6"
+cap="0 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192"
+procs=2
 prod=1
 rec=1
-msgs=3000000
+msgs=300000
 iter=1
 # create file for measurements
 date_today=$(date -d yesterday '+%Y-%m-%d-%T')
-file_name="PT2PT-SPSC-SM-"$date_today.csv
+file_name="PT2PT-SPSC-DM-"$date_today.csv
 header="com_mech,chantype,num_procs,num_prod,num_cons,iterations,capacity,is_receiver,rank,byte,byte_indi,time,bandwidth,implementation"
 echo $header > $file_name
 echo "File $file_name created"
@@ -59,6 +59,3 @@ for ca in $cap; do
 done
 
 echo "Finished measurements..."
-
-
-srun --nodes=1 --ntasks=16 --exclusive --pty mpirun -np 8 ./Test --type PT2PT --capacity 0 --producers 4 --receivers 4 --msg_num 30000 --iterations 1 --file_name asdasd --implementation impl

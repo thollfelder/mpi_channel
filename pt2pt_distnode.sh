@@ -39,11 +39,11 @@ make
 echo "Compiled new"
 
 # SPSC SYNC AND BUF
-cap="0 1 2 4 8 16 32 64 128 256 512"
-procs="3 4 5 6"
+cap="0 1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192"
+procs=2
 prod=1
 rec=1
-msgs=300000
+msgs=2500000
 iter=1
 # create file for measurements
 date_today=$(date -d yesterday '+%Y-%m-%d-%T')

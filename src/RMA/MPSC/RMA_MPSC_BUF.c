@@ -33,445 +33,15 @@
 const int rma_mpsc_buf_minus_one = -1;
 const int rma_mpsc_buf_null = 0;
 
-MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
-{
-    // Store internal channel type
-    ch->chan_type = MPSC;
-
-   // Create backup in case of failing MPI_Comm_dup
-    MPI_Comm comm = ch->comm;
-
-    // Create shadow comm and store it
-    // Should be nothrow
-    if (MPI_Comm_dup(ch->comm, &ch->comm) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Comm_dup(): Fatal Error\n");
-        free(ch->receiver_ranks);
-        free(ch->sender_ranks);
-        MPI_Free_mem(ch->win_lmem);
-        channel_alloc_assert_success(comm, 1);
-        free(ch);
-        return NULL;
-    }
-
-    if (ch->is_receiver)
-    {
-        // Allocate memory for two integers used to store adress of current head and tail node
-        if (MPI_Alloc_mem(2 * sizeof(int), MPI_INFO_NULL, &ch->win_lmem) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Alloc_mem()\n");
-            free(ch);
-            ch = NULL;
-            return NULL;
-        }
-        // Create window object
-        if (MPI_Win_create(ch->win_lmem, 2 * sizeof(int), sizeof(int), MPI_INFO_NULL, ch->comm, &ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Win_create()\n");
-            MPI_Free_mem(ch->win_lmem);
-            free(ch);
-            ch = NULL;
-            return NULL;
-        }
-
-        // Set head and tail to -1
-        int *ptr = ch->win_lmem;
-        *ptr = *(ptr + 1) = -1;
-    }
-    else
-    {
-        // Allocate memory for two integers used as read and write index and capacity + 1 times datasize + sizeof(int) 
-        // in bytes
-        if (MPI_Alloc_mem(INDICES_SIZE + (ch->capacity+1)*(ch->data_size + sizeof(int)), MPI_INFO_NULL, &ch->win_lmem) 
-        != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Alloc_mem()\n");
-            free(ch);
-            ch = NULL;
-            return NULL;
-        }
-
-        // Create a window
-        if (MPI_Win_create(ch->win_lmem, INDICES_SIZE + (ch->capacity+1)*(ch->data_size + sizeof(int)), 1, MPI_INFO_NULL, 
-        ch->comm, &ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Win_create()\n");
-            MPI_Free_mem(ch->win_lmem);
-            free(ch);
-            ch = NULL;
-            return NULL;
-        }
-
-        // Set read and write index to 0
-        int *ptr = ch->win_lmem;
-        *ptr = *(ptr + 1) = 0;
-    }
-
-    // Final call to assure that every process was successfull
-    // Use initial communicator since duplicated communicater has a new context
-    if (channel_alloc_assert_success(comm, 0) != 1)
-    {
-        ERROR("Error in finalizing channel allocation: At least one process failed\n");
-        free(ch->receiver_ranks);
-        free(ch->sender_ranks);
-        MPI_Free_mem(ch->win_lmem);
-        free(ch);
-        return NULL;
-    }
-
-    DEBUG("RMA MPSC BUF finished allocation\n");
-
-    return ch;
-}
-
-int channel_send_rma_mpsc_buf(MPI_Channel *ch, void *data) 
-{
-    // Stores size of one node in byte
-    char node_size = ch->data_size + sizeof(int);
-
-    // Stores integer reference to local window memory usted to access read and write indices
-    int *index = ch->win_lmem;
-
-    // Stores adress of first node 
-    char *ptr_first_node = ch->win_lmem;
-    ptr_first_node += INDICES_SIZE;
-
-    // Used to store tail adress
-    int tail;
-
-    // Lock window of all procs of communicator (lock type is shared)
-    if (MPI_Win_lock_all(0, ch->win) != MPI_SUCCESS) 
-    {
-        ERROR("Error in MPI_Win_lock_all()\n");
-        return -1;    
-    }
-
-    // Loop while node buffer is full
-    do
-    {
-        // Ensure that memory is updated
-        if (MPI_Win_sync(ch->win) != MPI_SUCCESS) 
-        {
-            ERROR("Error in MPI_Win_sync()\n");
-            return -1;          
-        }
-    } while ((index[WRITE] + 1 == index[READ]) || ((index[WRITE] == ch->capacity && (index[READ] == 0))));
-
-    // Create new node at current write index
-    // Node consists of an integer next storing rank + write index and the data 
-    memcpy(ptr_first_node + index[WRITE]*node_size, &rma_mpsc_buf_minus_one, sizeof(int));
-    memcpy(ptr_first_node + index[WRITE]*node_size + sizeof(int), data, ch->data_size);
-
-    // Calculate node adress
-    int node_adress = ch->my_rank * (ch->capacity+1) + index[WRITE];
-
-    // Atomic exchange of tail with adress of newly created node
-    if (MPI_Fetch_and_op(&node_adress, &tail, MPI_INT, ch->receiver_ranks[0], TAIL, MPI_REPLACE, ch->win) != MPI_SUCCESS) 
-    {
-        ERROR("Error in MPI_Fetch_and_op()\n");
-        return -1;          
-    }
-
-    // Update write index in a circular way
-    index[WRITE] == (ch->capacity) ? index[WRITE] = 0 : index[WRITE]++;
-
-    // Assert completion of fetch operation
-    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS) 
-    {
-        ERROR("Error in MPI_Win_flush()\n");
-        return -1;          
-    }
-
-    // Check value of previous tail
-    if (tail == -1) 
-    {
-        // Tail stored -1; new node was the first in the linked list; replace head and let it point to newly created node
-        if (MPI_Accumulate(&node_adress, sizeof(int), MPI_BYTE, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_REPLACE, 
-        ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Accumulate()\n");
-            return -1;    
-        }
-    }
-     else 
-     {
-         // Tail stored the adress of another node; exchange the next variable of that node with the adress of the newly created node
-        if (MPI_Accumulate(&node_adress,  sizeof(int), MPI_BYTE, tail/(ch->capacity+1), INDICES_SIZE + 
-        (tail % (ch->capacity+1)) * node_size, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Accumulate()\n");
-            return -1;    
-        }
-     }    
-
-    // Unlock window
-    if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_unlock_all()\n");
-        return -1;                  
-    }
-
-    return 1;
-}
-
-int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
-{
-    // Stores integer reference to local window memory used to access head and tail
-    int *lmem = ch->win_lmem;
-
-    // Used to store adress next of a node
-    int next;
-
-    // Used to store head adress
-    int head;
-
-    // Lock window of all procs of communicator (lock type is shared)
-    if (MPI_Win_lock_all(0, ch->win) != MPI_SUCCESS) 
-    {
-        ERROR("Error in MPI_Win_lock_all()\n");
-        return -1;    
-    }
-
-    // Loop while head points to no node
-    do
-    {
-        // Ensure that memory is updated
-        if (MPI_Win_sync(ch->win) != MPI_SUCCESS) 
-        {
-            ERROR("Error in MPI_Win_sync()\n");
-            return -1;          
-        }    
-    } while (lmem[HEAD] == -1);
-
-    // Atomic load head of the local memory; needs to be done this way since accessing local memory with 
-    // a local load and MPI_Win_sync may lead to erroneous values
-    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &head, 1, MPI_INT, ch->receiver_ranks[0], HEAD, 1, MPI_INT, MPI_NO_OP, 
-    ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Get_accumulate()\n");
-        return -1;    
-    }
-
-    // Enforce completion of RMA calls
-    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_flush()\n");
-        return -1;    
-    }
-
-    // Calculate rank and offset from head adress 
-    int next_rank = head / (ch->capacity+1);
-    int next_read_idx = head % (ch->capacity+1);
-    int displacement = INDICES_SIZE + next_read_idx * (ch->data_size + sizeof(int));
-
-    // Load data ...
-    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, data, ch->data_size, MPI_BYTE, next_rank, displacement + sizeof(int), 
-    ch->data_size, MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Get_accumulate()\n");
-        return -1;    
-    }
-    
-    // and adress of next node
-    if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, ch->data_size, MPI_BYTE, next_rank, displacement, sizeof(int), 
-    MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Get_accumulate()\n");
-        return -1;    
-    }
-
-    // Enforce completion of RMA calls
-    if (MPI_Win_flush(ch->receiver_ranks[0], ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_flush()\n");
-        return -1;    
-    }
-
-    // Check if next is storing the adress of another node or not (-1)
-    if (next == -1)
-    {
-        // Used to store results of the compare and swap operation
-        int cas_result;
-
-        // Exchange tail with -1 only if the list consists of one node i.e if head and tail contain the same node adress; 
-        if (MPI_Compare_and_swap(&rma_mpsc_buf_minus_one, &head, &cas_result, MPI_INT, ch->receiver_ranks[0], TAIL, 
-        ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Compare_and_swap()\n");
-            return -1;    
-        }
-
-        // If CAS was not successful another node has been inserted into the list 
-        if (cas_result != head) 
-        {
-            // Repeat until the next adress of the current node has been updated by the process of the newly inserted node
-            do 
-            {
-                if (MPI_Get_accumulate(NULL, 0, MPI_CHAR, &next, 1, MPI_INT, next_rank, displacement, sizeof(int), 
-                MPI_BYTE, MPI_NO_OP, ch->win) != MPI_SUCCESS) 
-                {
-                    ERROR("Error in MPI_Get_accumulate()\n");
-                    return -1;          
-                }
-
-                // Ensure that memory is updated
-                if (MPI_Win_sync(ch->win) != MPI_SUCCESS) 
-                {
-                    ERROR("Error in MPI_Win_sync()\n");
-                    return -1;          
-                }
-
-            } while (next == -1);
-
-            // Update head to the adress of the next node; can be done safely with local store since a producer only 
-            // accesses the head if the tail is -1
-            lmem[HEAD] = next;
-        }
-        // CAS was successful
-        else 
-        {
-            // At this point tail has been exchanged with -1; if a producer now inserts a new node it receives -1 as tail 
-            // and changes head to the adress of the new node; because of this the following CAS only exchanges head 
-            // with -1 if head is still containing the adress of the node the consumer received the data from
-            if (MPI_Compare_and_swap(&rma_mpsc_buf_minus_one, &head, &cas_result, MPI_INT, ch->receiver_ranks[0], HEAD, 
-            ch->win) != MPI_SUCCESS)
-            {
-                ERROR("Error in MPI_Compare_and_swap()\n");
-                return -1;    
-            }
-        }
-    }
-    // Next points to another node
-    else 
-    {
-        // Update head to the adress of the next node; can be done safely with local store since a producer only 
-        // accesses the head if the tail is -1
-        lmem[HEAD] = next;
-    }
-
-    // Update the read index of the node the data has been read
-    next_read_idx == (ch->capacity) ? next_read_idx = 0 : next_read_idx++;
-
-    // Store the new read index to the local memory of the producer
-    if (MPI_Accumulate(&next_read_idx, 1, MPI_INT, next_rank, READ, 1, MPI_INT, MPI_REPLACE, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Accumulate()\n");
-        return -1;    
-    } 
-
-    // Unlock window
-    if (MPI_Win_unlock_all(ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_unlock_all()\n");
-        return -1;    
-    } 
-
-    return 1;
-}
-
-int channel_peek_rma_mpsc_buf(MPI_Channel *ch)
-{
-    // Stores integer reference to local window memory used to access head (if consumer calls) or read and write 
-    // indices (if sender calls)
-    int *lmem = ch->win_lmem;
-
-    // Lock local window with shared lock
-    if (MPI_Win_lock(MPI_LOCK_SHARED, ch->my_rank, 0, ch->win) != MPI_SUCCESS)
-    {
-        ERROR("Error in MPI_Win_lock()\n");
-        return -1;
-    }
-
-    // If calling process is receiver
-    if (ch->is_receiver)
-    {
-        // If head is -1 the list is empty
-        if (lmem[0] == -1)
-        {
-            // Unlock window
-            if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
-            {
-                ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
-                return -1;
-            }            
-            return 0;
-        }
-        else
-        {
-            // Unlock window
-            if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
-            {
-                ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
-                return -1;
-            }   
-            return 1;
-        }
-    }
-    // Calling process is sender
-    else 
-    {
-        // Used to store read index
-        int read;
-
-        // It could happend that a receiver interferes at lmem[READ]; fetch atomically read indices
-        if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &read, 1, MPI_INT, ch->my_rank, READ, 1, MPI_INT, MPI_NO_OP, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Get_accumulate()\n");
-            return -1;
-        } 
-
-        if (MPI_Win_flush(ch->my_rank, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Win_flush()\n");
-            return -1;
-        } 
-
-        // Calculate difference between write and read index
-        int dif = lmem[WRITE] - read;
-
-        // Unlock window
-        if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
-        {
-            ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
-            return -1;
-        }
-
-        return dif >= 0 ? ch->capacity - dif :  ch->capacity - (ch->capacity + 1 + dif);  
-    }
-}
-
-int channel_free_rma_mpsc_buf(MPI_Channel *ch)
-{
-   // Free allocated memory used for storing ranks
-    free(ch->receiver_ranks);
-    free(ch->sender_ranks);
-
-    // Both calls should be nothrow since window object was created successfully
-    // Frees window
-    MPI_Win_free(&ch->win);
-    
-    // Frees window memory
-    MPI_Free_mem(ch->win_lmem);
-
-    // Frees shadow communicator; nothrow since shadow comm duplication was successful
-    MPI_Comm_free(&ch->comm);
-
-    // Free the allocated memory ch points to
-    free(ch);
-    ch = NULL;
-
-    return 1;
-}
 
 /*
  * Test Version: Implementation with MPI_SHARED_LOCK
  * - Probleme: Es können genau zwei Prozesse gleichzeitig auf die Daten zugreifen; etwas langsamer als M&S
-*/
-/*
+ */
 MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
 {
     // Store internal channel type
-    ch->type = RMA_MPSC;
+    ch->comm_type = RMA;
 
    // Create backup in case of failing MPI_Comm_dup
     MPI_Comm comm = ch->comm;
@@ -553,7 +123,7 @@ MPI_Channel *channel_alloc_rma_mpsc_buf(MPI_Channel *ch)
     }
 
     //DEBUG
-    printf("RMA MPSC BUF SHAREDLOCK finished allocation\n");    
+    //printf("RMA MPSC BUF SHAREDLOCK finished allocation\n");    
 
     return ch;
 }
@@ -763,7 +333,102 @@ int channel_receive_rma_mpsc_buf(MPI_Channel *ch, void *data)
 
     return 1;
 }
-*/
+
+int channel_peek_rma_mpsc_buf(MPI_Channel *ch)
+{
+    // Stores integer reference to local window memory used to access head (if consumer calls) or read and write 
+    // indices (if sender calls)
+    int *lmem = ch->win_lmem;
+
+    // Lock local window with shared lock
+    if (MPI_Win_lock(MPI_LOCK_SHARED, ch->my_rank, 0, ch->win) != MPI_SUCCESS)
+    {
+        ERROR("Error in MPI_Win_lock()\n");
+        return -1;
+    }
+
+    // If calling process is receiver
+    if (ch->is_receiver)
+    {
+        // If head is -1 the list is empty
+        if (lmem[0] == -1)
+        {
+            // Unlock window
+            if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
+                return -1;
+            }            
+            return 0;
+        }
+        else
+        {
+            // Unlock window
+            if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
+            {
+                ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
+                return -1;
+            }   
+            return 1;
+        }
+    }
+    // Calling process is sender
+    else 
+    {
+        // Used to store read index
+        int read;
+
+        // It could happend that a receiver interferes at lmem[READ]; fetch atomically read indices
+        if (MPI_Get_accumulate(NULL, 0, MPI_BYTE, &read, 1, MPI_INT, ch->my_rank, READ, 1, MPI_INT, MPI_NO_OP, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Get_accumulate()\n");
+            return -1;
+        } 
+
+        if (MPI_Win_flush(ch->my_rank, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_flush()\n");
+            return -1;
+        } 
+
+        // Calculate difference between write and read index
+        int dif = lmem[WRITE] - read;
+
+        // Unlock window
+        if (MPI_Win_unlock(ch->my_rank, ch->win) != MPI_SUCCESS)
+        {
+            ERROR("Error in MPI_Win_unlock(): Channel might be broken\n");
+            return -1;
+        }
+
+        return dif >= 0 ? ch->capacity - dif :  ch->capacity - (ch->capacity + 1 + dif);  
+    }
+}
+
+int channel_free_rma_mpsc_buf(MPI_Channel *ch)
+{
+   // Free allocated memory used for storing ranks
+    free(ch->receiver_ranks);
+    free(ch->sender_ranks);
+
+    // Both calls should be nothrow since window object was created successfully
+    // Frees window
+    MPI_Win_free(&ch->win);
+    
+    // Frees window memory
+    MPI_Free_mem(ch->win_lmem);
+
+    // Frees shadow communicator; nothrow since shadow comm duplication was successful
+    MPI_Comm_free(&ch->comm);
+
+    // Free the allocated memory ch points to
+    free(ch);
+    ch = NULL;
+
+    return 1;
+}
+
+
 
 /*
 Test Version: Implementation with MPI_EXCLUSIVE_LOCK

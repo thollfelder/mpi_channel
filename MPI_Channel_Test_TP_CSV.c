@@ -16,8 +16,6 @@ extern int optind;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-
 #include "src/MPI_Channel.h"
 #include <sys/time.h>
 
@@ -359,9 +357,6 @@ void test_case()
     }
 
     // loop with increasing number of integers (1, 2, ..., num_msg)
-    //for (int int_count = 1; int_count <= num_msg; int_count *= 2)
-    //int int_count = ceil(log2(producers + consumers));
-    //int_count = exp2(int_count);
     int int_count = producers * consumers;
     is_receiver = rank < consumers ? 1 : 0;
 

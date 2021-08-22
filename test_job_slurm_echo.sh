@@ -43,7 +43,7 @@ echo "Finished mpi program"
 # ends local session on node03
 #exit
 
-mpirun -np 1 -host node[03-04] HelloWorld 
+mpirun -np 4 -host node[03-04] HelloWorld 
 
 
 #srun --nodes=2 --ntasks-per-node=1 --time=02:00:00 --exclusive --nodelist node03,node04 --pty bash -i
