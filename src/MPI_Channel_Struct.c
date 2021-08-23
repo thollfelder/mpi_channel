@@ -19,15 +19,12 @@ int append_buffer(int to_append)
     // Get the size and address of the old buffer
     int size_old;
 
-    // TODO: Needs to be NULL, otherwise MPI_Buffer_detach causes segfault 
+    // Needs to be NULL, otherwise MPI_Buffer_detach causes segfault 
     void *buffer_old = NULL;
 
     // Should not fail; if no buffer is attached adress NULL and size 0 is returned
     MPI_Buffer_detach(&buffer_old, &size_old);
 
-    // TODO: Confirm
-    // For MPI_Buffer_attach() to be successfull, size needs to be at least 1
-    
     if (size_old == 0) 
     {
         // No free since buffer address has size 0

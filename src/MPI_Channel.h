@@ -48,7 +48,6 @@
  * conditions possible taking efficiency into consideration (wait-free, etc.).
  * 
  */
-// TODO: Fair and starvationfree!
 
 #ifndef MPI_CHANNEL_H
 #define MPI_CHANNEL_H

@@ -6,7 +6,6 @@
  * @date 2021-06-06
  * @copyright CC BY 4.0
  * 
- * 
  * Implementierung als M&S Nonblocking Queue Variante + Distributed Lock auf Receiverseite
  * Grund: Implementierung sollte fair und starvation-free sein!
  * 
